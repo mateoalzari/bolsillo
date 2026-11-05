@@ -64,3 +64,20 @@ export function shortDate(iso: string): string {
   const d = parseISODate(iso);
   return `${d.getDate()} ${MONTHS[d.getMonth()].slice(0, 3)}`;
 }
+
+/** Fecha del día `day` del mes; si el mes es más corto, el último día (31 → 30 de noviembre). */
+export function dateInMonth(key: MonthKey, day: number): string {
+  return `${key}-${pad(Math.min(day, daysInMonth(key)))}`;
+}
+
+/** Corre una fecha `months` meses, manteniendo el día cuando existe: 31/01 + 1 → 28/02. */
+export function shiftMonths(iso: string, months: number): string {
+  return dateInMonth(addMonths(monthKeyOf(iso), months), Number(iso.slice(8, 10)));
+}
+
+/** Suma días a una fecha ISO. */
+export function addDays(iso: string, days: number): string {
+  const d = parseISODate(iso);
+  d.setDate(d.getDate() + days);
+  return toISODate(d);
+}

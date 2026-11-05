@@ -1,4 +1,4 @@
-import type { CategoryId } from './types';
+import type { AnyCategoryId, CategoryId, IncomeCategoryId } from './types';
 
 export interface CategoryInfo {
   label: string;
@@ -16,3 +16,16 @@ export const CATEGORIES: Record<CategoryId, CategoryInfo> = {
   ropa: { label: 'Ropa', color: { light: '#3C8989', dark: '#6DBBBB' } },
   otros: { label: 'Otros', color: { light: '#857D72', dark: '#ABA397' } },
 };
+
+/** Los ingresos comparten un mismo verde, para leerse de un vistazo como "entra plata". */
+const INCOME_COLOR = { light: '#2F7D52', dark: '#74C79A' };
+
+export const INCOME_CATEGORIES: Record<IncomeCategoryId, CategoryInfo> = {
+  sueldo: { label: 'Sueldo', color: INCOME_COLOR },
+  freelance: { label: 'Freelance', color: INCOME_COLOR },
+  otros_ingresos: { label: 'Otros ingresos', color: INCOME_COLOR },
+};
+
+export function categoryInfo(id: AnyCategoryId): CategoryInfo {
+  return id in CATEGORIES ? CATEGORIES[id as CategoryId] : INCOME_CATEGORIES[id as IncomeCategoryId];
+}

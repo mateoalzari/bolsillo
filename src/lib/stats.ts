@@ -1,12 +1,38 @@
 import { addMonths, daysInMonth, monthKeyOf, monthName } from './dates';
-import { CATEGORY_IDS, type CategoryId, type Expense, type MonthKey } from './types';
+import { categoryInfo } from './categories';
+import { CATEGORY_IDS, type AnyCategoryId, type CategoryId, type Movement, type MonthKey } from './types';
 
-export function expensesInMonth(expenses: Expense[], key: MonthKey): Expense[] {
-  return expenses.filter((e) => monthKeyOf(e.date) === key);
+export function movementsInMonth(movements: Movement[], key: MonthKey): Movement[] {
+  return movements.filter((m) => monthKeyOf(m.date) === key);
 }
 
-export function sumAmounts(expenses: Expense[]): number {
-  return expenses.reduce((acc, e) => acc + e.amount, 0);
+export const onlyExpenses = (movements: Movement[]) => movements.filter((m) => m.type === 'expense');
+export const onlyIncome = (movements: Movement[]) => movements.filter((m) => m.type === 'income');
+
+/** Gastos del mes (sin ingresos). */
+export function expensesInMonth(movements: Movement[], key: MonthKey): Movement[] {
+  return onlyExpenses(movementsInMonth(movements, key));
+}
+
+export function sumAmounts(movements: Movement[]): number {
+  return movements.reduce((acc, m) => acc + m.amount, 0);
+}
+
+export interface MonthTotals {
+  income: number;
+  expenses: number;
+  /** Ingresos − gastos: lo que queda (o falta) en el mes. */
+  balance: number;
+  /** Proporción de los ingresos que queda (0 a 1); null si no hubo ingresos. */
+  savingsRate: number | null;
+}
+
+export function monthTotals(movements: Movement[], key: MonthKey): MonthTotals {
+  const inMonth = movementsInMonth(movements, key);
+  const income = sumAmounts(onlyIncome(inMonth));
+  const expenses = sumAmounts(onlyExpenses(inMonth));
+  const balance = income - expenses;
+  return { income, expenses, balance, savingsRate: income > 0 ? balance / income : null };
 }
 
 export interface CategoryTotal {
@@ -16,10 +42,14 @@ export interface CategoryTotal {
   share: number;
 }
 
-/** Totales por categoría, de mayor a menor, sin las categorías vacías. */
-export function totalsByCategory(expenses: Expense[]): CategoryTotal[] {
+/** Totales de gasto por categoría, de mayor a menor, sin las categorías vacías. */
+export function totalsByCategory(movements: Movement[]): CategoryTotal[] {
+  const expenses = onlyExpenses(movements);
   const totals = new Map<CategoryId, number>();
-  for (const e of expenses) totals.set(e.category, (totals.get(e.category) ?? 0) + e.amount);
+  for (const e of expenses) {
+    const c = e.category as CategoryId;
+    totals.set(c, (totals.get(c) ?? 0) + e.amount);
+  }
   const grand = sumAmounts(expenses);
   return CATEGORY_IDS.filter((c) => totals.has(c))
     .map((category) => {
@@ -34,14 +64,31 @@ export interface DayTotal {
   total: number;
 }
 
-/** Un elemento por cada día del mes (1..28/31), con 0 si no hubo gastos. */
-export function totalsByDay(expenses: Expense[], key: MonthKey): DayTotal[] {
+/** Gasto de cada día del mes (1..28/31), con 0 si no hubo gastos. */
+export function totalsByDay(movements: Movement[], key: MonthKey): DayTotal[] {
   const days: DayTotal[] = Array.from({ length: daysInMonth(key) }, (_, i) => ({ day: i + 1, total: 0 }));
-  for (const e of expenses) {
-    if (monthKeyOf(e.date) !== key) continue;
-    days[Number(e.date.slice(8, 10)) - 1].total += e.amount;
+  for (const m of movements) {
+    if (m.type !== 'expense' || monthKeyOf(m.date) !== key) continue;
+    days[Number(m.date.slice(8, 10)) - 1].total += m.amount;
   }
   return days;
+}
+
+export interface MonthPoint {
+  month: MonthKey;
+  /** Nombre corto: "jun" */
+  label: string;
+  income: number;
+  expenses: number;
+}
+
+/** Ingresos y gastos de los últimos `count` meses, terminando en `endMonth`. */
+export function monthlySeries(movements: Movement[], endMonth: MonthKey, count = 6): MonthPoint[] {
+  return Array.from({ length: count }, (_, i) => {
+    const month = addMonths(endMonth, i - count + 1);
+    const t = monthTotals(movements, month);
+    return { month, label: monthName(month).slice(0, 3), income: t.income, expenses: t.expenses };
+  });
 }
 
 export type BudgetLevel = 'ok' | 'warning' | 'over';
@@ -71,12 +118,12 @@ export interface MonthComparison {
 }
 
 /**
- * Compara el mes elegido con el anterior. Si el mes elegido es el actual,
+ * Compara el gasto del mes elegido con el anterior. Si el mes elegido es el actual,
  * se compara contra el mes anterior "a esta altura" (hasta el mismo día),
  * para que la comparación sea justa.
  */
 export function compareWithPreviousMonth(
-  expenses: Expense[],
+  movements: Movement[],
   key: MonthKey,
   today: string,
 ): MonthComparison {
@@ -84,9 +131,10 @@ export function compareWithPreviousMonth(
   const partial = monthKeyOf(today) === key;
   const cutoffDay = partial ? Number(today.slice(8, 10)) : 31;
 
-  const current = sumAmounts(expensesInMonth(expenses, key));
+  // En el mes en curso solo cuenta lo que ya pasó (no las cuotas con fecha futura).
+  const current = sumAmounts(expensesInMonth(movements, key).filter((m) => !partial || m.date <= today));
   const previous = sumAmounts(
-    expensesInMonth(expenses, prevKey).filter((e) => Number(e.date.slice(8, 10)) <= cutoffDay),
+    expensesInMonth(movements, prevKey).filter((m) => Number(m.date.slice(8, 10)) <= cutoffDay),
   );
   // Redondeo simétrico: −67,5 % → −68 % (igual que +67,5 % → +68 %).
   const raw = previous > 0 ? ((current - previous) / previous) * 100 : null;
@@ -108,43 +156,61 @@ export function normalize(text: string): string {
   return text.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase().trim();
 }
 
+export type ListFilterValue = CategoryId | 'todas' | 'ingresos' | 'gastos';
+
 export interface ExpenseFilter {
-  category: CategoryId | 'todas';
+  category: ListFilterValue;
   query: string;
 }
 
-export function filterExpenses(expenses: Expense[], filter: ExpenseFilter): Expense[] {
+function matchesCategory(m: Movement, f: ListFilterValue): boolean {
+  if (f === 'todas') return true;
+  if (f === 'ingresos') return m.type === 'income';
+  if (f === 'gastos') return m.type === 'expense';
+  return m.type === 'expense' && m.category === f;
+}
+
+/** Busca en la descripción y en el nombre de la categoría. */
+export function filterExpenses(movements: Movement[], filter: ExpenseFilter): Movement[] {
   const q = normalize(filter.query);
-  return expenses.filter(
-    (e) =>
-      (filter.category === 'todas' || e.category === filter.category) &&
-      (!q || normalize(e.description).includes(q)),
+  return movements.filter(
+    (m) =>
+      matchesCategory(m, filter.category) &&
+      (!q || normalize(m.description).includes(q) || normalize(categoryInfo(m.category as AnyCategoryId).label).includes(q)),
   );
 }
 
 /** Más recientes primero; dentro del mismo día, el último cargado primero. */
-export function sortByDateDesc(expenses: Expense[]): Expense[] {
-  return [...expenses].sort((a, b) =>
+export function sortByDateDesc<T extends Movement>(movements: T[]): T[] {
+  return [...movements].sort((a, b) =>
     a.date === b.date ? b.createdAt - a.createdAt : a.date < b.date ? 1 : -1,
   );
 }
 
 export interface DayGroup {
   date: string;
+  /** Neto del día: ingresos − gastos. */
+  net: number;
+  /** Solo gastos del día. */
   total: number;
-  items: Expense[];
+  items: Movement[];
 }
 
 /** Agrupa una lista (ya ordenada) por fecha, manteniendo el orden. */
-export function groupByDate(sorted: Expense[]): DayGroup[] {
+export function groupByDate(sorted: Movement[]): DayGroup[] {
   const groups: DayGroup[] = [];
-  for (const e of sorted) {
-    const last = groups[groups.length - 1];
-    if (last && last.date === e.date) {
-      last.items.push(e);
-      last.total += e.amount;
+  for (const m of sorted) {
+    let last = groups[groups.length - 1];
+    if (!last || last.date !== m.date) {
+      last = { date: m.date, net: 0, total: 0, items: [] };
+      groups.push(last);
+    }
+    last.items.push(m);
+    if (m.type === 'expense') {
+      last.total += m.amount;
+      last.net -= m.amount;
     } else {
-      groups.push({ date: e.date, total: e.amount, items: [e] });
+      last.net += m.amount;
     }
   }
   return groups;

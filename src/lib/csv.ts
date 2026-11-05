@@ -1,5 +1,6 @@
-import { CATEGORIES } from './categories';
-import { PAYMENT_LABELS, type Expense } from './types';
+import { categoryInfo } from './categories';
+import { installmentLabel } from './installments';
+import { PAYMENT_LABELS, type Movement } from './types';
 
 const escape = (value: string) => (/[;"\n\r]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value);
 
@@ -7,16 +8,19 @@ const escape = (value: string) => (/[;"\n\r]/.test(value) ? `"${value.replace(/"
  * CSV separado por ";" (lo que espera Excel con configuración regional argentina),
  * con fecha DD/MM/AAAA y monto sin separador de miles.
  */
-export function expensesToCSV(expenses: Expense[]): string {
-  const header = ['Fecha', 'Categoría', 'Descripción', 'Medio de pago', 'Monto'];
-  const rows = expenses.map((e) => {
-    const [y, m, d] = e.date.split('-');
+export function movementsToCSV(movements: Movement[]): string {
+  const header = ['Fecha', 'Tipo', 'Categoría', 'Descripción', 'Medio de pago', 'Detalle', 'Monto'];
+  const rows = movements.map((m) => {
+    const [y, mo, d] = m.date.split('-');
+    const detail = m.installment ? installmentLabel(m.installment) : m.recurringId ? 'Fijo mensual' : '';
     return [
-      `${d}/${m}/${y}`,
-      CATEGORIES[e.category].label,
-      e.description,
-      PAYMENT_LABELS[e.method],
-      String(e.amount),
+      `${d}/${mo}/${y}`,
+      m.type === 'income' ? 'Ingreso' : 'Gasto',
+      categoryInfo(m.category).label,
+      m.description,
+      PAYMENT_LABELS[m.method],
+      detail,
+      String(m.amount),
     ].map(escape);
   });
   return [header, ...rows].map((r) => r.join(';')).join('\r\n');
