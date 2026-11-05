@@ -45,7 +45,7 @@ npm run dev        # desarrollo
 npm test           # tests de la lógica
 npm run contrast   # chequeo de contraste de colores
 npm run build      # build de producción en dist/
-npm run preview    # sirve el build en http://localhost:4174
+npm run preview    # sirve el build en http://localhost:4180
 ```
 
 ## Accesibilidad
