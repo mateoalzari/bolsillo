@@ -23,7 +23,11 @@ export function Dialog({ open, title, onClose, children, variant = 'sheet', desc
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    if (open && !el.open) el.showModal();
+    if (open && !el.open) {
+      el.showModal();
+      // showModal enfoca el primer control; llevamos el foco al campo principal si lo hay.
+      el.querySelector<HTMLElement>('[data-autofocus]')?.focus();
+    }
     if (!open && el.open) el.close();
   }, [open]);
 
@@ -80,7 +84,7 @@ export function ConfirmDialog({ open, title, description, confirmLabel, onConfir
   return (
     <Dialog open={open} title={title} description={description} onClose={onCancel} variant="alert">
       <div className="dialog__actions">
-        <button type="button" className="btn btn--secondary" onClick={onCancel} autoFocus>
+        <button type="button" className="btn btn--secondary" onClick={onCancel} data-autofocus>
           Cancelar
         </button>
         <button type="button" className="btn btn--danger" onClick={onConfirm}>

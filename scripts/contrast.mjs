@@ -18,6 +18,7 @@ const T = {
     primary: '#5B3FD9', onPrimary: '#FFFFFF', link: '#5134CF',
     heroBg: '#F3EADB', heroText: '#2A2116', heroMuted: '#5A4C3A', heroFill: '#2A2116',
     warn: '#8A4B00', danger: '#B42318', bar: '#8A7D6E',
+    success: '#2A7049', incomeBar: '#2F7D52', callout: '#F4EFE7',
     cats: ['#C47552', '#4F8D5C', '#4A78B5', '#A8852F', '#B6566B', '#7462C0', '#3C8989', '#857D72'],
   },
   dark: {
@@ -25,6 +26,7 @@ const T = {
     primary: '#9C86FF', onPrimary: '#160E33', link: '#A996FF',
     heroBg: '#262036', heroText: '#F5EBD8', heroMuted: '#CEC3AF', heroFill: '#F5EBD8',
     warn: '#F2B857', danger: '#FF8F85', bar: '#8B829C',
+    success: '#74C79A', incomeBar: '#74C79A', callout: '#25212F',
     cats: ['#DE9875', '#7DB98A', '#7FA5DA', '#D2AF5E', '#D9849A', '#A596E4', '#6DBBBB', '#ABA397'],
   },
 };
@@ -45,6 +47,16 @@ for (const [mode, t] of Object.entries(T)) {
     check(mode, `peligro / ${bgName}`, t.danger, bg, 4.5);
   }
   check(mode, 'texto botón principal', t.onPrimary, t.primary, 4.5);
+  // Nuevo: ingresos, avisos, insignias, pestañas, tarjeta de balance
+  for (const [bgName, bg] of [['bg', t.bg], ['surface', t.surface], ['surface2', t.surface2]]) {
+    check(mode, `ingreso (+$) / ${bgName}`, t.success, bg, 4.5);
+  }
+  check(mode, 'aviso sin cotización / bg', t.warn, t.bg, 4.5);
+  check(mode, 'texto / aviso de cuotas', t.text, t.callout, 4.5);
+  check(mode, 'insignia (Cuota 2/6, Fijo)', t.muted, t.surface2, 4.5);
+  check(mode, 'pestaña inactiva', t.muted, t.surface2, 4.5);
+  check(mode, 'balance negativo / tarjeta', t.danger, t.heroBg, 4.5);
+  check(mode, 'barra ingresos / superficie (gráf.)', t.incomeBar, t.surface, 3);
   check(mode, 'total / tarjeta total', t.heroText, t.heroBg, 4.5);
   check(mode, 'texto chico / tarjeta total', t.heroMuted, t.heroBg, 4.5);
   check(mode, 'aviso 80% / tarjeta total', t.warn, t.heroBg, 4.5);

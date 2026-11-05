@@ -1,9 +1,9 @@
 const formatter = new Intl.NumberFormat('es-AR', { maximumFractionDigits: 0 });
 
-/** 12500 → "$ 12.500" */
+/** 12500 → "$ 12.500" (con espacio duro, para que el número no quede separado del signo). */
 export function formatARS(amount: number): string {
   const sign = amount < 0 ? '−' : '';
-  return `${sign}$ ${formatter.format(Math.abs(Math.round(amount)))}`;
+  return `${sign}$\u00a0${formatter.format(Math.abs(Math.round(amount)))}`;
 }
 
 /**

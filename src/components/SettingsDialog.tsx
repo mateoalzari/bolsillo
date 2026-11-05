@@ -50,7 +50,7 @@ function BudgetForm({ budget, onSave, onCancel }: { budget: number; onSave: (b: 
             onChange={(e) => setValue(formatAmountInput(e.target.value))}
             aria-invalid={!!error}
             aria-describedby={`${id}-hint`}
-            autoFocus
+            data-autofocus
           />
         </div>
         <p id={`${id}-hint`} className={error ? 'field__error' : 'field__hint'}>
@@ -88,7 +88,7 @@ export function SettingsDialog(p: SettingsDialogProps) {
         <li>
           <div>
             <strong>Presupuesto mensual</strong>
-            <p className="muted small">El tope que querés no pasar cada mes.</p>
+            <p className="muted small">El tope de gastos que querés no pasar cada mes.</p>
           </div>
           <button type="button" className="btn btn--secondary" onClick={p.onEditBudget}>
             Editar
@@ -97,7 +97,7 @@ export function SettingsDialog(p: SettingsDialogProps) {
         <li>
           <div>
             <strong>Exportar {monthName(p.month)}</strong>
-            <p className="muted small">Descargá los gastos del mes en CSV, para Excel o Sheets.</p>
+            <p className="muted small">Descargá los movimientos del mes en CSV, para Excel o Sheets.</p>
           </div>
           <button type="button" className="btn btn--secondary" onClick={p.onExport}>
             <Download size={16} aria-hidden="true" /> CSV
@@ -105,11 +105,11 @@ export function SettingsDialog(p: SettingsDialogProps) {
         </li>
         <li className="settings-list__danger">
           <div>
-            <strong>{p.isSample ? 'Empezar de cero' : 'Borrar todos los gastos'}</strong>
+            <strong>{p.isSample ? 'Empezar de cero' : 'Borrar todos los movimientos'}</strong>
             <p className="muted small">
               {p.isSample
                 ? 'Borra los datos de ejemplo para cargar los tuyos.'
-                : 'Borra todos los gastos guardados en este navegador.'}
+                : 'Borra todos los movimientos y fijos guardados en este navegador.'}
             </p>
           </div>
           <button type="button" className="btn btn--danger-outline" onClick={p.onReset}>
@@ -121,7 +121,7 @@ export function SettingsDialog(p: SettingsDialogProps) {
           <li>
             <div>
               <strong>Datos de ejemplo</strong>
-              <p className="muted small">Reemplaza tus gastos por los de ejemplo, para ver la app en acción.</p>
+              <p className="muted small">Reemplaza tus movimientos por los de ejemplo, para ver la app en acción.</p>
             </div>
             <button type="button" className="btn btn--secondary" onClick={p.onLoadSample}>
               <RotateCcw size={16} aria-hidden="true" /> Cargar

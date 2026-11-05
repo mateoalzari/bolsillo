@@ -28,6 +28,9 @@
   --danger: #b42318;
   --danger-soft: #fdecea;
   --coin: #e9c47a;
+  --success: #2a7049;
+  --warn-text: #8a4b00;
+  --callout-bg: #f4efe7;
 
   --hero-bg: #f3eadb;
   --hero-text: #2a2116;
@@ -57,6 +60,9 @@
   --danger: #ff8f85;
   --danger-soft: #3a1f25;
   --coin: #e9c47a;
+  --success: #74c79a;
+  --warn-text: #f2b857;
+  --callout-bg: #25212f;
 
   --hero-bg: #262036;
   --hero-text: #f5ebd8;
@@ -285,10 +291,48 @@ button {
   border: 1px solid var(--border);
 }
 .month-picker__label {
+  white-space: nowrap;
   font-weight: 600;
   font-size: 15px;
   text-align: center;
   flex: 1;
+}
+
+/* ---------- Moneda ---------- */
+.mobile-month {
+  display: flex;
+  gap: 8px;
+}
+.mobile-month .month-picker {
+  flex: 1;
+  min-width: 0;
+}
+.select.select--compact {
+  min-width: 0;
+  width: 112px;
+  flex: none;
+  min-height: 42px;
+  height: 100%;
+  padding: 0 6px 0 10px;
+  font-size: 14px;
+  font-weight: 600;
+  border-color: var(--border);
+  border-radius: 14px;
+}
+.currency-note {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.currency-note strong {
+  color: var(--text);
+}
+.currency-note--warn {
+  color: var(--warn-text);
+  font-weight: 500;
 }
 
 /* ---------- Layout (celular primero) ---------- */
@@ -300,7 +344,8 @@ button {
   flex-direction: column;
   gap: 14px;
 }
-.layout__side {
+.layout__side,
+.layout__main {
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -365,6 +410,32 @@ button {
   font-weight: 800;
   line-height: 1.1;
   margin: 4px 0 8px;
+}
+.hero__total.is-negative {
+  color: var(--hero-danger);
+}
+.hero__note {
+  font-size: 13.5px;
+  color: var(--hero-muted);
+}
+.hero__stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 16px 0 10px;
+  padding-top: 14px;
+  border-top: 1px solid var(--hero-track);
+}
+.hero__stats dt {
+  font-size: 13px;
+  color: var(--hero-muted);
+}
+.hero__stats dd {
+  margin: 2px 0 0;
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
 }
 .hero__compare {
   display: inline-flex;
@@ -513,10 +584,10 @@ button {
 }
 
 /* ---------- Gráfico por día ---------- */
-.daily-chart {
+.chart {
   margin: 0 -4px -6px;
 }
-.daily-chart .recharts-surface:focus {
+.chart .recharts-surface:focus {
   outline: none;
 }
 .chart-tooltip {
@@ -943,6 +1014,190 @@ button {
   margin-top: 14px;
 }
 
+
+/* ---------- Ingresos, insignias y avisos ---------- */
+.item__amount.is-income {
+  color: var(--success);
+}
+.item__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px 6px;
+}
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 1px 7px;
+  border-radius: 99px;
+  background: var(--surface-2);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+.callout {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--callout-bg);
+  font-size: 13.5px;
+}
+.callout svg {
+  flex: none;
+  margin-top: 2px;
+  color: var(--muted);
+}
+
+/* ---------- Próximos vencimientos ---------- */
+.upcoming__item {
+  display: grid;
+  grid-template-columns: 46px 30px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+.upcoming__date {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+.upcoming__text {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px 6px;
+  min-width: 0;
+}
+.upcoming__title {
+  font-size: 14px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.upcoming__amount {
+  font-weight: 600;
+  font-size: 14px;
+}
+.upcoming__foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 10px;
+}
+
+/* ---------- Lecturas ---------- */
+.insights {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.insights li {
+  display: grid;
+  grid-template-columns: 18px 1fr;
+  gap: 10px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.insights svg {
+  margin-top: 3px;
+  color: var(--muted);
+}
+
+/* ---------- Pestañas y leyenda ---------- */
+.tabs {
+  display: inline-flex;
+  padding: 3px;
+  border-radius: 10px;
+  background: var(--surface-2);
+}
+.tabs__tab {
+  padding: 4px 10px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 500;
+}
+.tabs__tab[aria-selected='true'] {
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 600;
+  box-shadow: 0 0 0 1px var(--border-strong);
+}
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin-bottom: 8px;
+  font-size: 12.5px;
+}
+.legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.legend i {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+
+/* ---------- Formulario: tipo, cuotas y fijo ---------- */
+.segmented--type {
+  grid-template-columns: 1fr 1fr !important;
+}
+.cat-grid--3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+.field--inline {
+  display: grid;
+  grid-template-columns: auto 150px;
+  align-items: center;
+  column-gap: 12px;
+  justify-content: start;
+}
+.field--inline .select {
+  width: 100%;
+}
+.field--inline .field__hint--block {
+  grid-column: 1 / -1;
+}
+.field__hint--block {
+  display: block;
+  margin-top: 2px;
+}
+.check {
+  display: grid;
+  grid-template-columns: 22px 1fr;
+  gap: 10px;
+  align-items: start;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  font-size: 14px;
+}
+.check input {
+  width: 18px;
+  height: 18px;
+  margin: 2px 0 0;
+  accent-color: var(--primary);
+}
+.check strong {
+  font-weight: 600;
+}
+
 /* ---------- Transiciones de la lista ---------- */
 .item.is-entering {
   animation: item-in 200ms var(--ease);
@@ -1012,6 +1267,9 @@ button {
   .only-desktop {
     display: inline-flex;
   }
+  .currency-note {
+    grid-column: 1 / -1;
+  }
   .mobile-month,
   .fab-bar {
     display: none;
@@ -1026,7 +1284,8 @@ button {
   .sample-note {
     grid-column: 1 / -1;
   }
-  .layout__side {
+  .layout__side,
+  .layout__main {
     gap: 16px;
   }
   .hero__total {

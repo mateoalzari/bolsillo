@@ -1,7 +1,10 @@
 import {
+  BriefcaseBusiness,
   Bus,
   Ellipsis,
+  HandCoins,
   HeartPulse,
+  Laptop,
   Shirt,
   ShoppingCart,
   Ticket,
@@ -9,11 +12,11 @@ import {
   Zap,
   type LucideIcon,
 } from 'lucide-react';
-import { CATEGORIES } from '../lib/categories';
-import type { CategoryId } from '../lib/types';
+import { categoryInfo } from '../lib/categories';
+import type { AnyCategoryId } from '../lib/types';
 import type { Theme } from '../hooks/useTheme';
 
-const CATEGORY_ICONS: Record<CategoryId, LucideIcon> = {
+const CATEGORY_ICONS: Record<AnyCategoryId, LucideIcon> = {
   comida: Utensils,
   super: ShoppingCart,
   transporte: Bus,
@@ -22,14 +25,17 @@ const CATEGORY_ICONS: Record<CategoryId, LucideIcon> = {
   ocio: Ticket,
   ropa: Shirt,
   otros: Ellipsis,
+  sueldo: BriefcaseBusiness,
+  freelance: Laptop,
+  otros_ingresos: HandCoins,
 };
 
-export function categoryColor(id: CategoryId, theme: Theme): string {
-  return CATEGORIES[id].color[theme];
+export function categoryColor(id: AnyCategoryId, theme: Theme): string {
+  return categoryInfo(id).color[theme];
 }
 
 interface CategoryIconProps {
-  id: CategoryId;
+  id: AnyCategoryId;
   theme: Theme;
   size?: 'sm' | 'md';
 }

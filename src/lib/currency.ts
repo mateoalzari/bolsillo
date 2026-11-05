@@ -45,5 +45,5 @@ export function formatMoney(amountARS: number, currency: Currency, rates: Rates 
   const value = amountARS / rates[currency];
   const abs = Math.abs(value);
   const text = usd(abs < 100 ? 2 : 0).format(abs);
-  return `${value < 0 ? '−' : ''}US$ ${text}`;
+  return `${value < 0 ? '−' : ''}US$\u00a0${text}`;
 }

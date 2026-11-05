@@ -1,25 +1,26 @@
 import { CATEGORIES } from '../lib/categories';
-import { formatARS } from '../lib/money';
 import type { CategoryTotal } from '../lib/stats';
-import type { CategoryId } from '../lib/types';
+import type { ListFilterValue } from '../lib/stats';
+import { useMoney } from '../hooks/useMoney';
 import type { Theme } from '../hooks/useTheme';
 import { CategoryIcon, categoryColor } from './icons';
 
 interface CategoryBreakdownProps {
   totals: CategoryTotal[];
   theme: Theme;
-  selected: CategoryId | 'todas';
-  onSelect: (category: CategoryId | 'todas') => void;
+  selected: ListFilterValue;
+  onSelect: (category: ListFilterValue) => void;
 }
 
 /** Barras horizontales por categoría. Cada fila filtra la lista al tocarla. */
 export function CategoryBreakdown({ totals, theme, selected, onSelect }: CategoryBreakdownProps) {
+  const { format } = useMoney();
   const max = totals[0]?.total ?? 0;
   return (
     <section className="card" aria-labelledby="cat-title">
       <div className="card__head">
         <h2 id="cat-title" className="card__title">
-          Por categoría
+          Gastos por categoría
         </h2>
         {selected !== 'todas' && (
           <button type="button" className="link-btn" onClick={() => onSelect('todas')}>
@@ -38,7 +39,7 @@ export function CategoryBreakdown({ totals, theme, selected, onSelect }: Categor
                 className={`cat-row ${selected === category ? 'is-selected' : ''}`}
                 aria-pressed={selected === category}
                 onClick={() => onSelect(selected === category ? 'todas' : category)}
-                aria-label={`${CATEGORIES[category].label}: ${formatARS(total)}, ${Math.round(share * 100)}% del mes. Filtrar la lista.`}
+                aria-label={`${CATEGORIES[category].label}: ${format(total)}, ${Math.round(share * 100)}% del mes. Filtrar la lista.`}
               >
                 <CategoryIcon id={category} theme={theme} size="sm" />
                 <span className="cat-row__body">
@@ -52,7 +53,7 @@ export function CategoryBreakdown({ totals, theme, selected, onSelect }: Categor
                     />
                   </span>
                 </span>
-                <span className="cat-row__amount num">{formatARS(total)}</span>
+                <span className="cat-row__amount num">{format(total)}</span>
               </button>
             </li>
           ))}

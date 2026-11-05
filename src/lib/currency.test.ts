@@ -18,10 +18,10 @@ describe('cotización del dólar', () => {
   });
   it('convierte y formatea en dólares; sin cotización, queda en pesos', () => {
     const rates = parseRates(api)!;
-    expect(formatMoney(1_570_000, 'oficial', rates)).toBe('US$ 1.000');
-    expect(formatMoney(7800, 'blue', rates)).toBe('US$ 5,00');
-    expect(formatMoney(-156_000, 'blue', rates)).toBe('−US$ 100');
-    expect(formatMoney(12500, 'ARS', rates)).toBe('$ 12.500');
-    expect(formatMoney(12500, 'blue', null)).toBe('$ 12.500');
+    expect(formatMoney(1_570_000, 'oficial', rates)).toBe('US$\u00a01.000');
+    expect(formatMoney(7800, 'blue', rates)).toBe('US$\u00a05,00');
+    expect(formatMoney(-156_000, 'blue', rates)).toBe('−US$\u00a0100');
+    expect(formatMoney(12500, 'ARS', rates)).toBe('$\u00a012.500');
+    expect(formatMoney(12500, 'blue', null)).toBe('$\u00a012.500');
   });
 });

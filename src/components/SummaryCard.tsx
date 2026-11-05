@@ -1,33 +1,56 @@
 import { CircleAlert, TrendingDown, TrendingUp, TriangleAlert } from 'lucide-react';
+import { useMoney } from '../hooks/useMoney';
 import { monthName } from '../lib/dates';
-import { formatARS } from '../lib/money';
-import { budgetStatus, comparisonText, type MonthComparison } from '../lib/stats';
+import { budgetStatus, comparisonText, type MonthComparison, type MonthTotals } from '../lib/stats';
 import type { MonthKey } from '../lib/types';
 
 interface SummaryCardProps {
   month: MonthKey;
-  total: number;
+  totals: MonthTotals;
   budget: number;
   comparison: MonthComparison;
   onEditBudget: () => void;
 }
 
-export function SummaryCard({ month, total, budget, comparison, onEditBudget }: SummaryCardProps) {
-  const status = budgetStatus(total, budget);
+export function SummaryCard({ month, totals, budget, comparison, onEditBudget }: SummaryCardProps) {
+  const { format } = useMoney();
+  const status = budgetStatus(totals.expenses, budget);
   const pct = Math.round(status.ratio * 100);
   const TrendIcon = (comparison.percent ?? 0) > 0 ? TrendingUp : TrendingDown;
+  const name = monthName(month);
+
+  let balanceNote: string;
+  if (totals.income === 0) balanceNote = `Sin ingresos cargados en ${name}.`;
+  else if (totals.balance >= 0) balanceNote = `Te queda el ${Math.round((totals.savingsRate ?? 0) * 100)}% de lo que ingresó.`;
+  else balanceNote = `Gastaste ${format(-totals.balance)} más de lo que ingresó.`;
 
   return (
     <section className="card hero" aria-labelledby="hero-title">
       <h2 id="hero-title" className="hero__label">
-        Gastaste en {monthName(month)}
+        Balance de {name}
       </h2>
-      <p className="hero__total display">{formatARS(total)}</p>
+      <p className={`hero__total display ${totals.balance < 0 ? 'is-negative' : ''}`}>{format(totals.balance)}</p>
+      <p className="hero__note">{balanceNote}</p>
+
+      <dl className="hero__stats">
+        <div>
+          <dt>Ingresos</dt>
+          <dd className="num">{format(totals.income)}</dd>
+        </div>
+        <div>
+          <dt>Gastos</dt>
+          <dd className="num">{format(totals.expenses)}</dd>
+        </div>
+      </dl>
+
       <p className="hero__compare">
         {comparison.percent !== null && comparison.percent !== 0 && (
           <TrendIcon size={15} strokeWidth={2.2} aria-hidden="true" />
         )}
-        {comparisonText(comparison)}
+        <span>
+          <span className="sr-only">Gastos: </span>
+          {comparisonText(comparison)}
+        </span>
       </p>
 
       {budget > 0 && (
@@ -35,22 +58,20 @@ export function SummaryCard({ month, total, budget, comparison, onEditBudget }: 
           <div
             className={`budget__bar budget__bar--${status.level}`}
             role="progressbar"
-            aria-label="Presupuesto usado"
+            aria-label="Presupuesto de gastos usado"
             aria-valuemin={0}
             aria-valuemax={100}
             aria-valuenow={Math.min(pct, 100)}
-            aria-valuetext={`${pct}% de ${formatARS(budget)}`}
+            aria-valuetext={`${pct}% de ${format(budget)}`}
           >
             <span style={{ width: `${Math.min(status.ratio, 1) * 100}%` }} />
           </div>
           <div className="budget__meta">
             <span>
-              {pct}% de {formatARS(budget)}
+              {pct}% de {format(budget)}
             </span>
             <span>
-              {status.remaining >= 0
-                ? `Te quedan ${formatARS(status.remaining)}`
-                : `Te pasaste ${formatARS(-status.remaining)}`}
+              {status.remaining >= 0 ? `Quedan ${format(status.remaining)}` : `Te pasaste ${format(-status.remaining)}`}
             </span>
           </div>
           {status.level !== 'ok' && (

@@ -18,18 +18,18 @@ describe('lectura: categoría que más creció', () => {
   it('compara contra el promedio de los 3 meses anteriores', () => {
     const data = [...history, m('2026-11-03', 75000, 'ocio', 'Recital'), m('2026-11-04', 82000, 'super', 'Coto')];
     expect(categoryGrowthInsight(data, '2026-11', '2026-12-01')?.text).toBe(
-      'En Ocio gastaste $ 75.000 en noviembre: 150% más que tu promedio de los 3 meses anteriores ($ 30.000).',
+      'En Ocio gastaste $\u00a075.000 en noviembre: 150% más que tu promedio de los 3 meses anteriores ($\u00a030.000).',
     );
   });
 
   it('en el mes en curso habla de lo que "ya llevás" y solo cuenta hasta hoy', () => {
     const data = [...history, m('2026-11-03', 75000, 'ocio', 'Recital'), m('2026-11-20', 500000, 'super', 'Futuro')];
     expect(categoryGrowthInsight(data, '2026-11', '2026-11-05')?.text).toBe(
-      'En Ocio ya llevás $ 75.000 este mes: 150% más que tu promedio de los 3 meses anteriores ($ 30.000).',
+      'En Ocio ya llevás $\u00a075.000 este mes: 150% más que tu promedio de los 3 meses anteriores ($\u00a030.000).',
     );
   });
 
-  it('ignora subas chicas (menos de 15% o de $ 10.000) y las cuotas', () => {
+  it('ignora subas chicas (menos de 15% o de $\u00a010.000) y las cuotas', () => {
     const small = [...history, m('2026-11-03', 33000, 'ocio'), m('2026-11-04', 85000, 'super')];
     expect(categoryGrowthInsight(small, '2026-11', '2026-11-05')).toBeNull();
     expect(categoryGrowthInsight(small, '2026-11', '2026-12-01')?.id).toBe('steady');
@@ -55,11 +55,11 @@ describe('lectura: día de más gasto', () => {
       m('2026-11-04', 25000, 'ocio', 'Cine'),
     ];
     expect(peakDayInsight(data, '2026-11', '2026-11-30')?.text).toBe(
-      'Sin contar fijos ni cuotas, tu día de más gasto fue el lunes 2: $ 86.000, casi todo en Coto.',
+      'Sin contar fijos ni cuotas, tu día de más gasto fue el lunes 2: $\u00a086.000, casi todo en Coto.',
     );
     const spread = [...data, m('2026-11-04', 40000, 'super', 'Día')];
     expect(peakDayInsight(spread, '2026-11', '2026-11-30')?.text).toBe(
-      'Sin contar fijos ni cuotas, tu día de más gasto fue el miércoles 4: $ 95.000, en 3 compras, la mayor en Día.',
+      'Sin contar fijos ni cuotas, tu día de más gasto fue el miércoles 4: $\u00a095.000, en 3 compras, la mayor en Día.',
     );
   });
   it('sin gastos variables no dice nada', () => {
@@ -75,12 +75,12 @@ describe('lectura: peso de los gastos fijos', () => {
   it('contra los ingresos del mes', () => {
     const data = [m('2026-11-01', 1_000_000, 'sueldo', 'Sueldo', { type: 'income' })];
     expect(fixedShareInsight(data, rules, '2026-11')?.text).toBe(
-      'Tus gastos fijos (2) suman $ 100.000 por mes: el 10% de lo que ingresó en noviembre.',
+      'Tus gastos fijos (2) suman $\u00a0100.000 por mes: el 10% de lo que ingresó en noviembre.',
     );
   });
   it('sin ingresos, contra lo gastado; sin fijos, nada', () => {
     expect(fixedShareInsight([m('2026-11-02', 400000, 'super')], rules, '2026-11')?.text).toBe(
-      'Tus gastos fijos (2) suman $ 100.000 por mes: el 25% de lo que gastaste en noviembre.',
+      'Tus gastos fijos (2) suman $\u00a0100.000 por mes: el 25% de lo que gastaste en noviembre.',
     );
     expect(fixedShareInsight([], [], '2026-11')).toBeNull();
   });
