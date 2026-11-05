@@ -103,7 +103,7 @@ export function SettingsDialog(p: SettingsDialogProps) {
             <Download size={16} aria-hidden="true" /> CSV
           </button>
         </li>
-        <li>
+        <li className="settings-list__danger">
           <div>
             <strong>{p.isSample ? 'Empezar de cero' : 'Borrar todos los gastos'}</strong>
             <p className="muted small">

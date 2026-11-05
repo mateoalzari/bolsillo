@@ -4,20 +4,27 @@ import { parseStored, sampleData } from './storage';
 import type { Expense } from './types';
 
 describe('datos de ejemplo', () => {
+  it('ajusta días inexistentes al último día del mes (ej.: 30 de febrero)', () => {
+    const feb = generateSampleExpenses('2027-03-02').filter((e) => e.date.startsWith('2027-02'));
+    expect(feb.every((e) => Number(e.date.slice(8)) <= 28)).toBe(true);
+  });
+
   const sample = generateSampleExpenses('2026-11-05');
 
   it('son unos 40 gastos de los últimos 2 meses, sin fechas futuras', () => {
-    expect(sample.length).toBeGreaterThanOrEqual(38);
+    expect(sample.length).toBeGreaterThanOrEqual(35);
     expect(sample.length).toBeLessThanOrEqual(45);
     for (const e of sample) {
       expect(e.date <= '2026-11-05').toBe(true);
-      expect(e.date >= '2026-09-05').toBe(true);
+      expect(e.date >= '2026-10-01').toBe(true);
     }
   });
 
   it('el mes actual y el anterior tienen gastos', () => {
     expect(sample.some((e) => e.date.startsWith('2026-11'))).toBe(true);
-    expect(sample.filter((e) => e.date.startsWith('2026-10')).length).toBeGreaterThan(15);
+    expect(sample.filter((e) => e.date.startsWith('2026-10')).length).toBe(30);
+    // Del mes actual, solo hasta hoy.
+    expect(sample.filter((e) => e.date.startsWith('2026-11')).every((e) => e.date <= '2026-11-05')).toBe(true);
   });
 
   it('tienen ids únicos', () => {

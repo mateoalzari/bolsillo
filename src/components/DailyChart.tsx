@@ -50,28 +50,34 @@ export function DailyChart({ days, month, theme }: DailyChartProps) {
           </span>
         )}
       </div>
-      <p className="sr-only">{summary}</p>
-      <div className="daily-chart" aria-hidden="true">
-        <ResponsiveContainer width="100%" height={140}>
-          <BarChart data={days} margin={{ top: 4, right: 0, bottom: 0, left: 0 }} barCategoryGap="18%">
-            <XAxis
-              dataKey="day"
-              ticks={[1, 8, 15, 22, last]}
-              interval={0}
-              tickLine={false}
-              axisLine={false}
-              tick={{ fill: c.axis, fontSize: 12 }}
-            />
-            <YAxis hide domain={[0, 'dataMax']} />
-            <Tooltip
-              cursor={{ fill: c.cursor }}
-              content={<ChartTooltip month={month} />}
-              isAnimationActive={false}
-            />
-            <Bar dataKey="total" fill={c.bar} radius={[3, 3, 0, 0]} minPointSize={0} isAnimationActive={false} />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
+      {peak.total === 0 ? (
+        <p className="muted small">{summary}</p>
+      ) : (
+        <>
+          <p className="sr-only">{summary}</p>
+          <div className="daily-chart" aria-hidden="true">
+            <ResponsiveContainer width="100%" height={140}>
+              <BarChart data={days} margin={{ top: 4, right: 8, bottom: 0, left: 8 }} barCategoryGap="18%">
+                <XAxis
+                  dataKey="day"
+                  ticks={[1, 8, 15, 22, last]}
+                  interval={0}
+                  tickLine={false}
+                  axisLine={false}
+                  tick={{ fill: c.axis, fontSize: 12 }}
+                />
+                <YAxis hide domain={[0, 'dataMax']} />
+                <Tooltip
+                  cursor={{ fill: c.cursor }}
+                  content={<ChartTooltip month={month} />}
+                  isAnimationActive={false}
+                />
+                <Bar dataKey="total" fill={c.bar} radius={[3, 3, 0, 0]} minPointSize={0} isAnimationActive={false} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </>
+      )}
     </section>
   );
 }

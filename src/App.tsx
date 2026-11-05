@@ -188,7 +188,7 @@ export default function App() {
         {data.isSample && (
           <div className="sample-note">
             <p>
-              Estás viendo <strong>datos de ejemplo</strong> para que pruebes la app.
+              Estás viendo <strong>datos de ejemplo</strong>.
             </p>
             <button type="button" className="link-btn" onClick={() => setConfirm({ kind: 'reset' })}>
               Empezar de cero

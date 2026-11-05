@@ -41,7 +41,7 @@ export function ExpenseForm({ initial, today, theme, onSubmit, onCancel, onDelet
     if (!category) next.category = 'Elegí una categoría.';
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) next.date = 'Elegí una fecha.';
     setErrors(next);
-    if (Object.keys(next).length) {
+    if (next.amount || next.category || next.date) {
       const firstInvalid = next.amount ? `${id}-amount` : next.category ? `${id}-cat-0` : `${id}-date`;
       document.getElementById(firstInvalid)?.focus();
       return;
@@ -63,7 +63,10 @@ export function ExpenseForm({ initial, today, theme, onSubmit, onCancel, onDelet
             autoComplete="off"
             placeholder="0"
             value={amount}
-            onChange={(e) => setAmount(formatAmountInput(e.target.value))}
+            onChange={(e) => {
+              setAmount(formatAmountInput(e.target.value));
+              if (errors.amount) setErrors((er) => ({ ...er, amount: undefined }));
+            }}
             aria-invalid={!!errors.amount}
             aria-describedby={errors.amount ? `${id}-amount-err` : undefined}
             autoFocus
@@ -87,7 +90,10 @@ export function ExpenseForm({ initial, today, theme, onSubmit, onCancel, onDelet
                 id={`${id}-cat-${i}`}
                 value={c}
                 checked={category === c}
-                onChange={() => setCategory(c)}
+                onChange={() => {
+                  setCategory(c);
+                  if (errors.category) setErrors((er) => ({ ...er, category: undefined }));
+                }}
               />
               <span className="cat-option__box">
                 <CategoryIcon id={c} theme={theme} size="sm" />
