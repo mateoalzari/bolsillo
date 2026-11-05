@@ -4,7 +4,7 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
-  preview: { port: 4173, strictPort: true },
+  preview: { port: 4174, strictPort: true },
   build: {
     // Recharts (con sus dependencias) pesa ~150 kB gzip; el código propio de la app, ~13 kB.
     chunkSizeWarningLimit: 600,
