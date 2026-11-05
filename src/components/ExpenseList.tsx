@@ -128,16 +128,18 @@ export function ExpenseList(props: ExpenseListProps) {
                       >
                         <CategoryIcon id={e.category} theme={theme} />
                         <span className="item__text">
-                          <span className="item__title">{label}</span>
-                          <span className="item__meta">
-                            {categoryInfo(e.category).label}
-                            {!isIncome && ` · ${PAYMENT_LABELS[e.method]}`}
+                          <span className="item__title-row">
+                            <span className="item__title">{label}</span>
                             {e.installment && <span className="badge">{installmentLabel(e.installment)}</span>}
                             {e.recurringId && (
                               <span className="badge">
                                 <Repeat size={11} aria-hidden="true" /> Fijo
                               </span>
                             )}
+                          </span>
+                          <span className="item__meta">
+                            {categoryInfo(e.category).label}
+                            {!isIncome && ` · ${PAYMENT_LABELS[e.method]}`}
                           </span>
                         </span>
                         <span className={`item__amount num ${isIncome ? 'is-income' : ''}`}>

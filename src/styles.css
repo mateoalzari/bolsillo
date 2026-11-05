@@ -731,10 +731,19 @@ button {
 .footer {
   max-width: 1240px;
   margin: 0 auto;
-  padding: 24px 16px 112px;
+  /* En celular: alto del botón fijo + aire, para que no tape el último contenido. */
+  padding: 24px 16px calc(var(--fab-space) + 32px);
   text-align: center;
   font-size: 12.5px;
   color: var(--muted);
+}
+:root {
+  /* Alto que ocupa la barra del botón "Agregar movimiento" (12 + 54 + 12 + zona segura). */
+  --fab-space: calc(78px + env(safe-area-inset-bottom));
+}
+html {
+  /* Al navegar con teclado, el elemento enfocado no queda detrás del botón fijo. */
+  scroll-padding-bottom: calc(var(--fab-space) + 16px);
 }
 .fab-bar {
   position: fixed;
@@ -1019,11 +1028,24 @@ button {
 .item__amount.is-income {
   color: var(--success);
 }
-.item__meta {
+/* Nombre + etiqueta en una sola línea: el nombre se corta con "…" y la etiqueta no salta. */
+.item__title-row {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  gap: 2px 6px;
+  gap: 6px;
+  min-width: 0;
+}
+.item__title-row .item__title {
+  flex: 0 1 auto;
+  min-width: 0;
+}
+.item__meta {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.badge {
+  flex: none;
 }
 .badge {
   display: inline-flex;
@@ -1072,12 +1094,13 @@ button {
 }
 .upcoming__text {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  gap: 2px 6px;
+  gap: 6px;
   min-width: 0;
 }
 .upcoming__title {
+  flex: 0 1 auto;
+  min-width: 0;
   font-size: 14px;
   font-weight: 600;
   overflow: hidden;
@@ -1273,6 +1296,9 @@ button {
   .mobile-month,
   .fab-bar {
     display: none;
+  }
+  html {
+    scroll-padding-bottom: 0;
   }
   .layout {
     display: grid;
