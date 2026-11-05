@@ -6,15 +6,17 @@ App web de gastos personales: cargás un gasto en segundos y ves cuánto llevás
 
 ## Qué hace
 
-- **Cargar, editar y borrar gastos**: monto, categoría, fecha (hoy por defecto), descripción opcional y medio de pago. Para borrar se pide confirmación dentro de la propia app.
-- **Resumen del mes**: total gastado, presupuesto editable con barra de progreso, aviso al pasar el 80% y el 100%, y comparación con el mes anterior. En el mes en curso se compara "a esta altura", o sea, hasta el mismo día del mes anterior.
-- **Gráficos**: gasto por categoría (barras horizontales; tocá una para filtrar la lista) y gasto por día.
-- **Lista** ordenada por fecha y agrupada por día, con búsqueda por descripción (ignora mayúsculas y tildes) y filtro por categoría.
-- **Datos de ejemplo** la primera vez (mes anterior completo + mes actual hasta hoy) y un botón para borrarlos y empezar de cero.
-- **Exportar a CSV** los gastos del mes, separado por `;` para que Excel lo abra bien en español.
-- **Modo claro y oscuro**: sigue al sistema y se puede cambiar con un botón.
+- **Gastos e ingresos** (sueldo, freelance, otros). La tarjeta principal muestra el balance del mes, ingresos, gastos, la comparación con el mes anterior y el presupuesto, con avisos al 80% y al 100%.
+- **Compras en cuotas** (1 a 24) con tarjeta de crédito: el total se reparte en una fila por mes ("Cuota 2/6") y se avisa cuánto hay comprometido en cuotas para el mes que viene. Editar o borrar una cuota actúa sobre la compra completa.
+- **Gastos e ingresos fijos mensuales**: se generan solos cada mes. Si se borra uno a mano, ese mes no se vuelve a generar. La sección **Próximos vencimientos** muestra fijos y cuotas de los próximos 30 días.
+- **Evolución** de los últimos 6 meses (ingresos vs. gastos), con el detalle **por día** en una pestaña.
+- **Lecturas del mes**, calculadas con tus datos: la categoría que más creció contra el promedio de los 3 meses anteriores (sin cuotas), el día de más gasto (sin fijos ni cuotas) y cuánto pesan los gastos fijos sobre los ingresos.
+- **Ver en dólares** (oficial o blue) con la cotización del día de [dolarapi.com](https://dolarapi.com). Si la API falla, todo sigue en pesos y se avisa.
+- Lista agrupada por día, con búsqueda y filtro por tipo o categoría. Exportación a CSV, modo claro y oscuro, y datos de ejemplo de 6 meses.
 
-Todo se guarda en `localStorage`. No hay backend.
+Las cuotas con fecha futura no cuentan como gastadas hasta su fecha: se ven en "Próximos vencimientos". Todo se guarda en `localStorage` (con migración desde la versión 1). No hay backend.
+
+![Escritorio](docs/capturas/escritorio-claro.png)
 
 ## Stack
 
@@ -25,7 +27,11 @@ React 18 + Vite + TypeScript · Recharts (gráfico por día) · lucide-react (í
 ```
 src/
   lib/            lógica pura, sin React (con tests)
-    stats.ts      totales, por categoría, por día, presupuesto, comparación, filtros
+    stats.ts      balance, totales, por categoría, por día, 6 meses, presupuesto, comparación, filtros
+    installments.ts  cuotas
+    recurring.ts  fijos mensuales y próximos vencimientos
+    insights.ts   lecturas automáticas
+    currency.ts   cotización del dólar y conversión
     money.ts      formato $ 12.500 y lectura de montos
     dates.ts      meses y días en español
     csv.ts        exportación
@@ -34,7 +40,7 @@ src/
   components/     piezas de la interfaz
   hooks/useTheme  modo claro/oscuro
 scripts/contrast.mjs   verifica el contraste WCAG de la paleta
-docs/                  propuestas de estilo iniciales
+docs/                  propuestas de estilo iniciales y capturas
 ```
 
 ## Comandos
