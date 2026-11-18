@@ -1,7 +1,8 @@
 import { useDeferredValue, useMemo, useState } from 'react'
 import { CATEGORIES, getCategory, methodLabel } from '../lib/categories'
 import { entriesToCSV } from '../lib/csv'
-import { dateLabel } from '../lib/dates'
+import { dateLabel, dayMonthLabel, monthOf } from '../lib/dates'
+import { installmentCount } from '../lib/ledger'
 import type { Entry } from '../lib/types'
 import { useApp, useFormat } from '../state/AppState'
 import { useMonthData } from '../state/useMonthData'
@@ -29,6 +30,16 @@ export function MovementList() {
     for (const e of filtered) map.set(e.date, [...(map.get(e.date) ?? []), e])
     return [...map.entries()]
   }, [filtered])
+
+  // Compras de este mes con tarjeta que se pagan en un resumen posterior: no cuentan en el balance de este mes
+  const deferred = useMemo(
+    () =>
+      data.movements
+        .filter((m) => m.kind === 'gasto' && m.method === 'credito' && m.paymentStart && monthOf(m.date) === month && monthOf(m.paymentStart) > month)
+        .sort((a, b) => b.date.localeCompare(a.date)),
+    [data.movements, month],
+  )
+  const cardName = (id?: string) => (id ? data.cards.find((c) => c.id === id)?.name : undefined)
 
   const usedCategories = useMemo(() => new Set(entries.map((e) => e.category)), [entries])
   const filtering = Boolean(deferredQuery.trim() || category)
@@ -77,6 +88,29 @@ export function MovementList() {
           ))}
         </select>
       </div>
+
+      {deferred.length > 0 && !filtering && (
+        <div className="deferred">
+          <h3 className="deferred__title">Con tarjeta: se pagan más adelante</h3>
+          <p className="muted field__hint">Compras de este mes que entran en un resumen posterior. No restan del balance de este mes.</p>
+          <div className="deferred__list">
+            {deferred.map((m) => {
+              const n = installmentCount(m)
+              return (
+                <button key={m.id} type="button" className="deferred__item" onClick={() => openEdit(m)}>
+                  <span className="deferred__main">
+                    <span className="deferred__name">{m.description}</span>
+                    <span className="deferred__when">
+                      {cardName(m.cardId) ?? 'Crédito'} · {n > 1 ? `${n} cuotas desde el ${dayMonthLabel(m.paymentStart!, todayDate)}` : `se paga el ${dayMonthLabel(m.paymentStart!, todayDate)}`}
+                    </span>
+                  </span>
+                  <span className="num">{fmt(m.amount)}</span>
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      )}
 
       {entries.length === 0 ? (
         <div className="empty">
@@ -127,7 +161,7 @@ export function MovementList() {
                         <span className="entry__main">
                           <span className="entry__desc">{e.description}</span>
                           <span className="entry__meta">
-                            {c.label} · {methodLabel(e.method)}
+                            {c.label} · {cardName(e.cardId) ?? methodLabel(e.method)}
                             {e.installment && (
                               <span className="tag">
                                 Cuota {e.installment.number}/{e.installment.total}

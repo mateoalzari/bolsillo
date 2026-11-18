@@ -92,3 +92,9 @@ export function daysBetween(a: ISODate, b: ISODate): number {
   const [yb, mb, db] = b.split('-').map(Number)
   return Math.round((Date.UTC(yb, mb - 1, db) - Date.UTC(ya, ma - 1, da)) / 86_400_000)
 }
+
+/** "5 de diciembre" (agrega el año si no es el de `ref`) */
+export function dayMonthLabel(date: ISODate, ref: ISODate = today()): string {
+  const [y, m, d] = date.split('-').map(Number)
+  return `${d} de ${MONTHS[m - 1]}${String(y) !== ref.slice(0, 4) ? ` de ${y}` : ''}`
+}

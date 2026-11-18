@@ -3,6 +3,11 @@ import type { Entry, MonthKey, Movement } from './types'
 
 export const MAX_INSTALLMENTS = 24
 
+/** Fecha del primer pago: el vencimiento de la tarjeta si lo hay, si no la fecha de compra. */
+export function paymentStartOf(m: Movement): string {
+  return m.kind === 'gasto' && m.method === 'credito' && m.paymentStart ? m.paymentStart : m.date
+}
+
 export function installmentCount(m: Movement): number {
   if (m.kind !== 'gasto' || m.method !== 'credito') return 1
   const n = Math.round(m.installments ?? 1)
@@ -23,16 +28,18 @@ export function splitInstallments(total: number, n: number): number[] {
 /**
  * Las cuotas de una compra NO se guardan como filas: se guardan la compra (total y cantidad de cuotas)
  * y se calculan acá. Así, editar la compra actualiza todas sus cuotas y nunca quedan cuotas huérfanas.
- * La cuota i (0-based) cae en el mes de compra + i, el mismo día (ajustado al fin de mes).
+ * La cuota i (0-based) cae en el mes del primer pago + i, el mismo día (ajustado al fin de mes).
+ * El primer pago es la fecha de compra, o el vencimiento del resumen si la compra es con una tarjeta cargada.
  */
 export function entriesForMovement(m: Movement): Entry[] {
   const n = installmentCount(m)
+  const start = paymentStartOf(m)
   if (n === 1) {
-    return [{ id: m.id, movementId: m.id, kind: m.kind, amount: m.amount, category: m.category, date: m.date, description: m.description, method: m.method, recurringId: m.recurringId }]
+    return [{ id: m.id, movementId: m.id, kind: m.kind, amount: m.amount, category: m.category, date: start, description: m.description, method: m.method, recurringId: m.recurringId, purchaseDate: m.date, cardId: m.cardId }]
   }
   const parts = splitInstallments(m.amount, n)
-  const startMonth = monthOf(m.date)
-  const day = dayOf(m.date)
+  const startMonth = monthOf(start)
+  const day = dayOf(start)
   return parts.map((amount, i) => ({
     id: `${m.id}#${i + 1}`,
     movementId: m.id,
@@ -43,6 +50,8 @@ export function entriesForMovement(m: Movement): Entry[] {
     description: m.description,
     method: m.method,
     installment: { number: i + 1, total: n },
+    purchaseDate: m.date,
+    cardId: m.cardId,
   }))
 }
 
@@ -51,7 +60,7 @@ export function entriesForMonth(movements: Movement[], month: MonthKey): Entry[]
   const out: Entry[] = []
   for (const m of movements) {
     const n = installmentCount(m)
-    const offset = monthDiff(monthOf(m.date), month)
+    const offset = monthDiff(monthOf(paymentStartOf(m)), month)
     if (offset < 0 || offset >= n) continue
     out.push(entriesForMovement(m)[offset])
   }

@@ -3,7 +3,7 @@ import { RateNotice, Section } from '../components/AppShell'
 import { Icon } from '../components/Icon'
 import { ConfirmDialog, Sheet } from '../components/Sheet'
 import { categoriesFor, getCategory, METHODS, methodLabel } from '../lib/categories'
-import { monthDiff, monthOf } from '../lib/dates'
+import { monthName, monthOf } from '../lib/dates'
 import { entriesForMovement, installmentCount } from '../lib/ledger'
 import { parseAmount } from '../lib/money'
 import { upcomingDue } from '../lib/recurring'
@@ -27,10 +27,11 @@ export function FixedPage() {
         .filter((m) => installmentCount(m) > 1)
         .map((m) => {
           const n = installmentCount(m)
-          const paid = Math.min(n, Math.max(0, monthDiff(monthOf(m.date), currentMonth) + 1))
           const parts = entriesForMovement(m)
+          // Cuotas cuyo vencimiento cae en este mes o antes
+          const paid = parts.filter((e) => monthOf(e.date) <= currentMonth).length
           const remaining = parts.slice(paid).reduce((t, e) => t + e.amount, 0)
-          return { m, n, paid, remaining, perMonth: parts[parts.length - 1].amount }
+          return { m, n, paid, remaining, perMonth: parts[parts.length - 1].amount, startsIn: monthOf(parts[0].date) }
         })
         .filter((p) => p.remaining > 0)
         .sort((a, b) => b.remaining - a.remaining),
@@ -73,7 +74,7 @@ export function FixedPage() {
               Te quedan <strong className="num">{fmt(totalRemaining)}</strong> por pagar en {activePlans.length} {activePlans.length === 1 ? 'compra' : 'compras'}.
             </p>
             <ul className="plans">
-              {activePlans.map(({ m, n, paid, remaining, perMonth }) => (
+              {activePlans.map(({ m, n, paid, remaining, perMonth, startsIn }) => (
                 <li key={m.id} className="plan">
                   <div className="plan__top">
                     <span className="plan__name">{m.description}</span>
@@ -86,7 +87,7 @@ export function FixedPage() {
                   </div>
                   <div className="plan__bottom muted">
                     <span>
-                      Cuota {Math.max(paid, 1)}/{n} · {getCategory(m.category).label}
+                      {paid === 0 ? `Empieza en ${monthName(startsIn)}` : `Cuota ${paid}/${n}`} · {getCategory(m.category).label}
                     </span>
                     <span>
                       Faltan <span className="num">{fmt(remaining)}</span>

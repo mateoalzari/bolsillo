@@ -1,6 +1,7 @@
 import { useId, useMemo, useRef, useState, type FormEvent } from 'react'
+import { firstPaymentDate } from '../lib/cards'
 import { categoriesFor, getCategory, METHODS } from '../lib/categories'
-import { dayOf, monthOf } from '../lib/dates'
+import { dayMonthLabel, dayOf, monthOf } from '../lib/dates'
 import { MAX_INSTALLMENTS, splitInstallments } from '../lib/ledger'
 import { formatARS, parseAmount } from '../lib/money'
 import type { Kind, Movement, PaymentMethod } from '../lib/types'
@@ -20,7 +21,7 @@ interface Errors {
 }
 
 export function MovementForm({ movement, onDone }: Props) {
-  const { addMovement, updateMovement, deleteMovement, addRule, todayDate } = useApp()
+  const { data, addMovement, updateMovement, deleteMovement, addRule, todayDate } = useApp()
   const ids = useId()
   const editing = Boolean(movement)
   const [kind, setKind] = useState<Kind>(movement?.kind ?? 'gasto')
@@ -30,6 +31,7 @@ export function MovementForm({ movement, onDone }: Props) {
   const [date, setDate] = useState(movement?.date ?? todayDate)
   const [method, setMethod] = useState<PaymentMethod>(movement?.method ?? 'debito')
   const [installments, setInstallments] = useState(movement?.installments ?? 1)
+  const [cardId, setCardId] = useState(movement ? (movement.cardId ?? '') : (data.cards[0]?.id ?? ''))
   const [isFixed, setIsFixed] = useState(false)
   const [errors, setErrors] = useState<Errors>({})
   const [confirmDelete, setConfirmDelete] = useState(false)
@@ -39,6 +41,8 @@ export function MovementForm({ movement, onDone }: Props) {
   const cats = categoriesFor(kind)
   const canInstallments = kind === 'gasto' && method === 'credito' && !isFixed
   const parsed = parseAmount(amount)
+  const card = data.cards.find((c) => c.id === cardId)
+  const firstPayment = canInstallments && card ? firstPaymentDate(date, card) : null
   const preview = useMemo(() => {
     if (!canInstallments || installments < 2 || !(parsed > 0)) return null
     return splitInstallments(parsed, installments)[1]
@@ -60,6 +64,10 @@ export function MovementForm({ movement, onDone }: Props) {
     if (errs.amount) return amountRef.current?.focus()
     if (errs.description) return descRef.current?.focus()
 
+    // Con tarjeta: la primera cuota se paga en el vencimiento del resumen donde entra la compra.
+    // Si la tarjeta se borró, se conserva la fecha de pago que ya tenía.
+    const keptStart = movement?.paymentStart && movement.cardId === cardId && movement.date === date ? movement.paymentStart : undefined
+    const paymentStart = canInstallments && cardId ? (firstPayment ?? keptStart) : undefined
     const base = {
       kind,
       amount: Math.round(parsed * 100) / 100,
@@ -68,10 +76,12 @@ export function MovementForm({ movement, onDone }: Props) {
       description: description.trim(),
       method,
       ...(canInstallments && installments > 1 ? { installments } : {}),
+      ...(canInstallments && cardId ? { cardId } : {}),
+      ...(paymentStart ? { paymentStart } : {}),
     }
     if (movement) {
-      const { installments: _drop, ...rest } = movement
-      void _drop
+      const { installments: _i, cardId: _c, paymentStart: _p, ...rest } = movement
+      void [_i, _c, _p]
       updateMovement({ ...rest, ...base })
     } else if (isFixed) {
       addRule({ kind, amount: base.amount, category, description: base.description, method, dayOfMonth: dayOf(date), startMonth: monthOf(date) })
@@ -167,6 +177,21 @@ export function MovementForm({ movement, onDone }: Props) {
         </div>
       </div>
 
+      {canInstallments && (data.cards.length > 0 || cardId) && (
+        <div className="field">
+          <label htmlFor={`${ids}-card`}>Tarjeta</label>
+          <select id={`${ids}-card`} name="card" value={cardId} onChange={(e) => setCardId(e.target.value)}>
+            {data.cards.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name} (cierra el {c.closingDay})
+              </option>
+            ))}
+            {cardId && !card && <option value={cardId}>Tarjeta borrada</option>}
+            <option value="">Sin tarjeta: se cuenta en el mes de compra</option>
+          </select>
+        </div>
+      )}
+
       {canInstallments && (
         <div className="field">
           <label htmlFor={`${ids}-inst`}>Cuotas</label>
@@ -177,11 +202,16 @@ export function MovementForm({ movement, onDone }: Props) {
               </option>
             ))}
           </select>
-          {preview !== null && (
-            <p className="field__hint" aria-live="polite">
-              {installments} cuotas de {formatARS(preview)}, una por mes desde {date.slice(5, 7)}/{date.slice(0, 4)}.
-            </p>
-          )}
+          <p className="field__hint" aria-live="polite">
+            {preview !== null && `${installments} cuotas de ${formatARS(preview)}. `}
+            {firstPayment
+              ? `Entra en el resumen de ${card?.name}: ${installments > 1 ? 'la primera cuota se paga' : 'se paga'} el ${dayMonthLabel(firstPayment, todayDate)}.`
+              : data.cards.length === 0
+                ? 'Cargá tu tarjeta en Ajustes para que las cuotas caigan según el cierre.'
+                : preview !== null
+                  ? `Una por mes desde ${date.slice(5, 7)}/${date.slice(0, 4)}.`
+                  : ''}
+          </p>
         </div>
       )}
 

@@ -1,9 +1,6 @@
 /*
-  Dos propuestas de estilo (hito 1), cada una con modo claro y oscuro.
-  - "crema": la línea visual del brief. Fondo crema, violeta como acción, formas suaves.
-  - "contraste": misma paleta llevada a un registro más editorial: blanco hueso, tinta casi negra,
-    bordes marcados, esquinas más rectas y números más pesados.
-  El tema sigue la preferencia del sistema salvo que el usuario elija uno (data-theme).
+  Estilo "Crema" (elegido en el hito 1): fondo crema, violeta como acción, formas suaves.
+  Modo claro y oscuro: sigue la preferencia del sistema salvo que el usuario elija uno (data-theme).
 */
 
 :root {
@@ -29,9 +26,8 @@
   --content: 1180px;
 }
 
-/* ---------- Estilo A: crema (claro) ---------- */
-:root,
-[data-style='crema'] {
+/* ---------- Claro ---------- */
+:root {
   color-scheme: light;
   --bg: #f5efe3;
   --bg-sunken: #ece4d4;
@@ -79,32 +75,7 @@
   --cat-in-3: #6aa67f;
 }
 
-/* ---------- Estilo B: contraste (claro) ---------- */
-[data-style='contraste'] {
-  --bg: #fbfaf7;
-  --bg-sunken: #f0eee8;
-  --surface: #ffffff;
-  --surface-2: #f6f4ef;
-  --ink: #121016;
-  --ink-2: #3c3742;
-  --ink-3: #5c5664;
-  --line: #121016;
-  --line-strong: #121016;
-
-  --accent: #5524d4;
-  --accent-soft: #ece5ff;
-  --accent-text: #4a1dbf;
-
-  --radius-1: 4px;
-  --radius-2: 6px;
-  --radius-3: 10px;
-  --border-w: 1.5px;
-  --display-weight: 780;
-  --shadow-1: none;
-  --shadow-2: 0 6px 14px rgb(18 16 22 / 0.12), 0 24px 48px -16px rgb(18 16 22 / 0.28);
-}
-
-/* ---------- Oscuro (ambos estilos) ---------- */
+/* ---------- Oscuro ---------- */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
     color-scheme: dark;
@@ -147,13 +118,6 @@
     --cat-in-1: #6fd4a0;
     --cat-in-2: #9be3bd;
     --cat-in-3: #c2efd6;
-  }
-  :root[data-style='contraste']:not([data-theme='light']) {
-    --bg: #0d0c10;
-    --surface: #16141b;
-    --surface-2: #1d1a23;
-    --line: #f3eef9;
-    --line-strong: #f3eef9;
   }
 }
 
@@ -198,11 +162,4 @@
   --cat-in-1: #6fd4a0;
   --cat-in-2: #9be3bd;
   --cat-in-3: #c2efd6;
-}
-:root[data-style='contraste'][data-theme='dark'] {
-  --bg: #0d0c10;
-  --surface: #16141b;
-  --surface-2: #1d1a23;
-  --line: #f3eef9;
-  --line-strong: #f3eef9;
 }

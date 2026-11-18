@@ -20,7 +20,8 @@ export const localStore: DataStore = {
       if (!raw) return null
       const data = JSON.parse(raw) as AppData
       if (data?.version !== 1 || !Array.isArray(data.movements) || !Array.isArray(data.recurring)) return null
-      return data
+      // Datos guardados antes de que existieran las tarjetas
+      return { ...data, cards: Array.isArray(data.cards) ? data.cards : [] }
     } catch {
       return null
     }

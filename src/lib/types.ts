@@ -19,6 +19,22 @@ export interface Movement {
   installments?: number
   /** Si fue generado por un gasto/ingreso fijo, la regla y el mes que lo originaron. */
   recurringId?: string
+  /** Tarjeta de crédito con la que se pagó. */
+  cardId?: string
+  /**
+   * Fecha en que se paga la primera cuota (el vencimiento del resumen donde entra la compra).
+   * Se calcula al guardar según el cierre de la tarjeta. Sin valor = la primera cuota cae en la fecha de compra.
+   */
+  paymentStart?: ISODate
+}
+
+export interface CreditCard {
+  id: string
+  name: string
+  /** Día de cierre del resumen (1–31) */
+  closingDay: number
+  /** Día de vencimiento del resumen (1–31) */
+  dueDay: number
 }
 
 export interface RecurringRule {
@@ -53,12 +69,16 @@ export interface Entry {
   method: PaymentMethod
   installment?: { number: number; total: number }
   recurringId?: string
+  /** Fecha de la compra original (para una cuota, distinta de `date`, que es cuando se paga). */
+  purchaseDate: ISODate
+  cardId?: string
 }
 
 export interface AppData {
   version: 1
   movements: Movement[]
   recurring: RecurringRule[]
+  cards: CreditCard[]
   /** Presupuesto mensual de gastos, en pesos. 0 = sin presupuesto. */
   budget: number
 }

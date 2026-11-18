@@ -59,7 +59,8 @@ export function buildInsights({ movements, rules, budget, month, day, isCurrentM
 
   // 2. Proyección al cierre del mes contra el presupuesto (solo mes en curso, con algunos días de datos)
   if (isCurrentMonth && budget > 0 && day >= 5) {
-    const variable = expenses.filter((e) => !e.recurringId && !e.installment).reduce((t, e) => t + e.amount, 0)
+    // Lo variable es lo que se compró este mes; cuotas y resúmenes de compras anteriores ya estaban comprometidos
+    const variable = expenses.filter((e) => !e.recurringId && e.purchaseDate.slice(0, 7) === month).reduce((t, e) => t + e.amount, 0)
     const committedThisMonth = totalSpent - variable
     const remainingDays = daysInMonth(month) - day
     const projected = committedThisMonth + variable + (variable / day) * remainingDays
@@ -84,7 +85,7 @@ export function buildInsights({ movements, rules, budget, month, day, isCurrentM
     out.push({
       id: 'committed-next',
       tone: 'neutral',
-      text: `El mes que viene ya tenés ${format(next.installments)} comprometidos en ${next.installmentCount} ${next.installmentCount === 1 ? 'cuota' : 'cuotas'}.`,
+      text: `El mes que viene ya tenés ${format(next.installments)} comprometidos en tarjeta y cuotas (${next.installmentCount} ${next.installmentCount === 1 ? 'pago' : 'pagos'}).`,
     })
   }
 

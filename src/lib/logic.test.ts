@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { firstPaymentDate } from './cards'
 import { entriesToCSV } from './csv'
 import { addMonths, dateInMonth, monthDiff } from './dates'
 import { buildInsights } from './insights'
@@ -89,6 +90,49 @@ describe('cuotas', () => {
     expect(c.installmentCount).toBe(1)
     expect(c.recurring).toBe(50)
     expect(c.total).toBe(150)
+  })
+})
+
+describe('tarjeta con cierre y vencimiento', () => {
+  const visa = { closingDay: 24, dueDay: 5 }
+
+  it('hasta el cierre entra en el resumen del mes y se paga el mes siguiente', () => {
+    expect(firstPaymentDate('2026-11-10', visa)).toBe('2026-12-05')
+    expect(firstPaymentDate('2026-11-24', visa)).toBe('2026-12-05')
+  })
+
+  it('después del cierre pasa al resumen siguiente', () => {
+    expect(firstPaymentDate('2026-11-25', visa)).toBe('2027-01-05')
+    expect(firstPaymentDate('2026-12-30', visa)).toBe('2027-02-05')
+  })
+
+  it('si vence después del cierre, se paga el mismo mes del resumen', () => {
+    const card = { closingDay: 15, dueDay: 28 }
+    expect(firstPaymentDate('2026-11-10', card)).toBe('2026-11-28')
+    expect(firstPaymentDate('2026-11-20', card)).toBe('2026-12-28')
+  })
+
+  it('un cierre el 30 en febrero cierra el último día', () => {
+    expect(firstPaymentDate('2027-02-28', { closingDay: 30, dueDay: 10 })).toBe('2027-03-10')
+  })
+
+  it('las cuotas arrancan en el vencimiento, no en la compra', () => {
+    const m = mov({ method: 'credito', installments: 3, amount: 300, date: '2026-11-25', cardId: 'v', paymentStart: firstPaymentDate('2026-11-25', visa) })
+    expect(entriesForMovement(m).map((e) => e.date)).toEqual(['2027-01-05', '2027-02-05', '2027-03-05'])
+    expect(entriesForMovement(m)[0].purchaseDate).toBe('2026-11-25')
+    expect(entriesForMonth([m], '2026-11')).toHaveLength(0)
+    expect(entriesForMonth([m], '2027-01')[0].installment?.number).toBe(1)
+  })
+
+  it('una compra en un pago con tarjeta queda comprometida para el mes en que vence', () => {
+    const m = mov({ id: 'z', method: 'credito', amount: 5000, date: '2026-11-10', paymentStart: '2026-12-05' })
+    expect(committedFor([m], [], '2026-12')).toMatchObject({ installments: 5000, installmentCount: 1 })
+    expect(entriesForMonth([m], '2026-11')).toHaveLength(0)
+  })
+
+  it('el vencimiento solo aplica a gastos con crédito', () => {
+    const m = mov({ method: 'debito', date: '2026-11-10', paymentStart: '2026-12-05' })
+    expect(entriesForMonth([m], '2026-11')).toHaveLength(1)
   })
 })
 
@@ -207,6 +251,8 @@ describe('datos de ejemplo', () => {
     expect(nov.some((e) => e.kind === 'ingreso')).toBe(true)
     expect(new Set(data.movements.map((m) => m.id)).size).toBe(data.movements.length)
     expect(materializeRecurring(data.recurring, data.movements, '2026-11')).toHaveLength(0)
+    expect(data.cards).toHaveLength(1)
+    expect(data.movements.filter((m) => m.method === 'credito' && !m.recurringId).every((m) => m.paymentStart && m.paymentStart > m.date)).toBe(true)
     const ins = buildInsights({ movements: data.movements, rules: data.recurring, budget: data.budget, month: '2026-11', day: 18, isCurrentMonth: true })
     expect(ins.length).toBe(3)
   })

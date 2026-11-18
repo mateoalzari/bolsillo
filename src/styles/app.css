@@ -732,9 +732,6 @@ a {
   border-top: 1px solid color-mix(in oklab, var(--line) 75%, transparent);
 }
 
-[data-style='contraste'] .entries li + li {
-  border-top-color: color-mix(in oklab, var(--line) 22%, transparent);
-}
 
 .entry {
   display: flex;
@@ -1366,72 +1363,6 @@ a {
   gap: var(--space-6);
 }
 
-.style-options {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-3);
-}
-
-.style-option {
-  position: relative;
-  display: grid;
-  gap: var(--space-2);
-  padding: var(--space-3);
-  border: var(--border-w) solid var(--line);
-  border-radius: var(--radius-2);
-  cursor: pointer;
-}
-
-.style-option input {
-  position: absolute;
-  opacity: 0;
-}
-
-.style-option:has(input:checked) {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 2px var(--accent);
-}
-
-.style-option:has(input:focus-visible) {
-  outline: 2.5px solid var(--accent);
-  outline-offset: 3px;
-}
-
-.style-option__swatch {
-  display: grid;
-  place-items: center;
-  height: 64px;
-  font-family: var(--font-display);
-  font-size: 20px;
-  letter-spacing: -0.03em;
-}
-
-.style-option--crema .style-option__swatch {
-  background: #f5efe3;
-  color: #5329c4;
-  border-radius: 12px;
-  font-weight: 680;
-}
-
-.style-option--contraste .style-option__swatch {
-  background: #fbfaf7;
-  color: #121016;
-  border: 1.5px solid #121016;
-  border-radius: 4px;
-  font-weight: 800;
-}
-
-.style-option__text {
-  display: grid;
-  font-size: 13px;
-  color: var(--ink-3);
-}
-
-.style-option__text strong {
-  font-size: 15px;
-  color: var(--ink);
-}
-
 .settings__data {
   display: grid;
   gap: var(--space-2);
@@ -1616,28 +1547,6 @@ a {
   }
 }
 
-/* ============ Estilo "contraste" ============ */
-[data-style='contraste'] .hero__amount {
-  color: var(--ink);
-  text-decoration: underline;
-  text-decoration-color: var(--accent);
-  text-decoration-thickness: 0.1em;
-  text-underline-offset: 0.12em;
-}
-
-[data-style='contraste'] .hero__amount--neg {
-  text-decoration-color: var(--danger);
-}
-
-[data-style='contraste'] .section,
-[data-style='contraste'] .entries {
-  box-shadow: none;
-}
-
-[data-style='contraste'] .fab {
-  box-shadow: 0 6px 16px rgb(0 0 0 / 0.22);
-}
-
 /* ============ Reducir movimiento ============ */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -1681,4 +1590,102 @@ a {
 
 .filters__cat {
   width: 9.5rem;
+}
+
+/* ============ Tarjetas ============ */
+.cards-list {
+  display: grid;
+  border: var(--border-w) solid var(--line);
+  border-radius: var(--radius-2);
+  overflow: hidden;
+}
+
+.card-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4);
+  color: var(--ink-2);
+}
+
+.card-row + .card-row {
+  border-top: 1px solid var(--line);
+}
+
+.card-row__text {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  font-size: 13px;
+}
+
+.card-row__text strong {
+  font-size: 15px;
+  color: var(--ink);
+}
+
+.card-form {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  border-radius: var(--radius-2);
+  background: var(--surface-2);
+}
+
+/* ============ Compras con tarjeta que se pagan más adelante ============ */
+.deferred {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border: var(--border-w) dashed var(--line-strong);
+  border-radius: var(--radius-3);
+}
+
+.deferred__title {
+  font: var(--display-weight) 16px/1.3 var(--font-display);
+  letter-spacing: -0.015em;
+}
+
+.deferred__list {
+  display: grid;
+}
+
+.deferred__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  min-height: var(--tap);
+  padding: var(--space-2) 0;
+  border: 0;
+  border-top: 1px solid color-mix(in oklab, var(--line) 70%, transparent);
+  background: none;
+  text-align: left;
+}
+
+.deferred__item:first-child {
+  border-top: 0;
+}
+
+.deferred__item:hover .deferred__name {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.deferred__main {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+}
+
+.deferred__name {
+  font-weight: 550;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.deferred__when {
+  font-size: 13px;
+  color: var(--ink-3);
 }

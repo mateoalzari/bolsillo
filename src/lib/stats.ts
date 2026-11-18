@@ -64,21 +64,21 @@ export function budgetState(budget: number, spent: number): BudgetState {
 }
 
 export interface Committed {
-  /** Cuotas de compras ya hechas que caen en ese mes. */
+  /** Pagos de compras hechas antes de ese mes que caen en ese mes (cuotas y resúmenes de tarjeta). */
   installments: number
   /** Gastos fijos que se van a generar en ese mes. */
   recurring: number
   total: number
-  /** Cantidad de cuotas distintas. */
+  /** Cantidad de pagos distintos. */
   installmentCount: number
 }
 
 /**
- * Lo que ya está comprometido para un mes futuro: las cuotas de compras hechas antes
- * más los gastos fijos activos. Solo cuenta cuotas de compras con fecha anterior a ese mes.
+ * Lo que ya está comprometido para un mes: lo que se paga ese mes por compras hechas antes
+ * (cuotas y compras con tarjeta que entran en el resumen) más los gastos fijos activos.
  */
 export function committedFor(movements: Movement[], rules: RecurringRule[], month: MonthKey): Committed {
-  const installmentEntries = entriesForMonth(movements, month).filter((e) => e.installment && e.installment.number > 1)
+  const installmentEntries = entriesForMonth(movements, month).filter((e) => e.kind === 'gasto' && !e.recurringId && e.purchaseDate.slice(0, 7) < month)
   const installments = sumBy(installmentEntries, 'gasto')
   const recurring = recurringTotalFor(rules, month, 'gasto')
   return { installments, recurring, total: installments + recurring, installmentCount: installmentEntries.length }

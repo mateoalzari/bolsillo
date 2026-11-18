@@ -46,7 +46,7 @@ export function BalanceHero() {
         {committedThis ? (
           <>
             <div>
-              <dt>En cuotas</dt>
+              <dt>En tarjeta y cuotas</dt>
               <dd className="num">{fmt(committedThis.installments)}</dd>
             </div>
             <div>
@@ -212,7 +212,7 @@ export function UpcomingPanel({ limit = 4 }: { limit?: number }) {
           <span className="num committed__total">{fmt(committedNext.total)}</span>
         </p>
         <p className="committed__split muted">
-          {fmt(committedNext.installments)} en cuotas · {fmt(committedNext.recurring)} en fijos
+          {fmt(committedNext.installments)} en tarjeta y cuotas · {fmt(committedNext.recurring)} en fijos
         </p>
       </div>
       {upcoming.length > 0 && (

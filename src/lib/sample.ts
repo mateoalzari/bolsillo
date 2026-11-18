@@ -1,6 +1,7 @@
 import { addMonths, dateInMonth, dayOf, daysInMonth, monthOf, monthRange } from './dates'
+import { firstPaymentDate } from './cards'
 import { materializeRecurring } from './recurring'
-import type { AppData, ISODate, Movement, PaymentMethod, RecurringRule } from './types'
+import type { AppData, CreditCard, ISODate, Movement, PaymentMethod, RecurringRule } from './types'
 
 /** Generador pseudoaleatorio con semilla: los datos de ejemplo salen siempre iguales. */
 function rng(seed: number) {
@@ -37,10 +38,13 @@ export function buildSampleData(todayDate: ISODate): AppData {
     { id: 'fijo-streaming', kind: 'gasto', amount: 15_400, category: 'ocio', description: 'Streaming y música', method: 'credito', dayOfMonth: 24, startMonth: first },
   ]
 
+  const card: CreditCard = { id: 'tarjeta-visa', name: 'Visa', closingDay: 24, dueDay: 5 }
+
   const movements: Movement[] = []
   const add = (date: ISODate, kind: Movement['kind'], amount: number, category: string, description: string, method: PaymentMethod, installments?: number) => {
     if (date > todayDate) return
-    movements.push({ id: id(), kind, amount, category, date, description, method, ...(installments && installments > 1 ? { installments } : {}) })
+    const withCard = kind === 'gasto' && method === 'credito' ? { cardId: card.id, paymentStart: firstPaymentDate(date, card) } : {}
+    movements.push({ id: id(), kind, amount, category, date, description, method, ...withCard, ...(installments && installments > 1 ? { installments } : {}) })
   }
 
   for (const month of monthRange(first, current)) {
@@ -88,5 +92,5 @@ export function buildSampleData(todayDate: ISODate): AppData {
 
   // Los fijos del mes en curso se generan completos (aunque vengan después de hoy): así el balance muestra lo que de verdad queda.
   const generated = materializeRecurring(rules, movements, current)
-  return { version: 1, movements: [...movements, ...generated], recurring: rules, budget: 1_900_000 }
+  return { version: 1, movements: [...movements, ...generated], recurring: rules, cards: [card], budget: 1_900_000 }
 }

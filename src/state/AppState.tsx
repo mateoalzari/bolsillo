@@ -5,7 +5,7 @@ import { formatARS, formatMoney } from '../lib/money'
 import { materializeRecurring } from '../lib/recurring'
 import { buildSampleData } from '../lib/sample'
 import { localStore } from '../lib/storage'
-import type { AppData, MonthKey, Movement, RecurringRule } from '../lib/types'
+import type { AppData, CreditCard, MonthKey, Movement, RecurringRule } from '../lib/types'
 
 /* ---------------- Datos ---------------- */
 
@@ -18,6 +18,8 @@ type Action =
   | { type: 'updateRule'; rule: RecurringRule; fromMonth: MonthKey }
   | { type: 'deleteRule'; id: string; fromMonth: MonthKey }
   | { type: 'setBudget'; budget: number }
+  | { type: 'saveCard'; card: CreditCard }
+  | { type: 'deleteCard'; id: string }
 
 function withRecurring(data: AppData): AppData {
   const created = materializeRecurring(data.recurring, data.movements, monthOf(today()))
@@ -55,6 +57,13 @@ function reducer(state: AppData, action: Action): AppData {
     }
     case 'setBudget':
       return { ...state, budget: Math.max(0, action.budget) }
+    case 'saveCard': {
+      // Cambiar el cierre de una tarjeta no reprograma las compras ya cargadas: su resumen ya quedó definido
+      const exists = state.cards.some((c) => c.id === action.card.id)
+      return { ...state, cards: exists ? state.cards.map((c) => (c.id === action.card.id ? action.card : c)) : [...state.cards, action.card] }
+    }
+    case 'deleteCard':
+      return { ...state, cards: state.cards.filter((c) => c.id !== action.id) }
   }
 }
 
@@ -65,21 +74,20 @@ function initialData(): AppData {
 /* ---------------- Preferencias ---------------- */
 
 export type CurrencyView = 'ARS' | DolarKind
-export type StyleName = 'crema' | 'contraste'
 export type ThemePref = 'system' | 'light' | 'dark'
 
 interface Prefs {
   currency: CurrencyView
-  style: StyleName
   theme: ThemePref
 }
 
 const PREFS_KEY = 'bolsillo:prefs'
 
 function loadPrefs(): Prefs {
-  const fallback: Prefs = { currency: 'ARS', style: 'crema', theme: 'system' }
+  const fallback: Prefs = { currency: 'ARS', theme: 'system' }
   try {
-    return { ...fallback, ...JSON.parse(localStorage.getItem(PREFS_KEY) ?? '{}') }
+    const saved = JSON.parse(localStorage.getItem(PREFS_KEY) ?? '{}')
+    return { currency: saved.currency ?? fallback.currency, theme: saved.theme ?? fallback.theme }
   } catch {
     return fallback
   }
@@ -106,6 +114,8 @@ interface AppState {
   updateRule: (r: RecurringRule) => void
   deleteRule: (id: string) => void
   setBudget: (n: number) => void
+  saveCard: (c: Omit<CreditCard, 'id'> & { id?: string }) => void
+  deleteCard: (id: string) => void
   resetToSample: () => void
   clearAll: () => void
 }
@@ -132,7 +142,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
       /* sin almacenamiento */
     }
     const root = document.documentElement
-    root.dataset.style = prefs.style
     if (prefs.theme === 'system') delete root.dataset.theme
     else root.dataset.theme = prefs.theme
     const meta = document.querySelector('meta[name="theme-color"]')
@@ -179,8 +188,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
       updateRule: (r) => dispatch({ type: 'updateRule', rule: r, fromMonth: currentMonth }),
       deleteRule: (id) => dispatch({ type: 'deleteRule', id, fromMonth: currentMonth }),
       setBudget: (n) => dispatch({ type: 'setBudget', budget: n }),
+      saveCard: (c) => dispatch({ type: 'saveCard', card: { ...c, id: c.id ?? newId() } }),
+      deleteCard: (id) => dispatch({ type: 'deleteCard', id }),
       resetToSample: () => dispatch({ type: 'replace', data: buildSampleData(todayDate) }),
-      clearAll: () => dispatch({ type: 'replace', data: { version: 1, movements: [], recurring: [], budget: 0 } }),
+      clearAll: () => dispatch({ type: 'replace', data: { version: 1, movements: [], recurring: [], cards: [], budget: 0 } }),
     }),
     [data, month, setMonth, currentMonth, todayDate, prefs, rate, rateStatus],
   )

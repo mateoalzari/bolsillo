@@ -13,10 +13,9 @@
     <meta property="og:locale" content="es_AR" />
     <meta name="twitter:card" content="summary" />
     <script>
-      // Aplica estilo y tema antes de pintar, para que no parpadee
+      // Aplica el tema antes de pintar, para que no parpadee
       try {
         var p = JSON.parse(localStorage.getItem('bolsillo:prefs') || '{}')
-        document.documentElement.dataset.style = p.style || 'crema'
         if (p.theme && p.theme !== 'system') document.documentElement.dataset.theme = p.theme
       } catch (e) {}
     </script>
