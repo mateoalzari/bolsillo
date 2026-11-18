@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="es-AR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Bolsillo — cuánto te queda hasta fin de mes</title>
+    <meta name="description" content="Bolsillo ordena tus gastos del mes pensando en Argentina: cuotas, gastos fijos, vencimientos y vista en dólares. Sabé cuánto te queda y cuánto ya tenés comprometido." />
+    <meta name="theme-color" content="#f5efe3" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta property="og:title" content="Bolsillo — cuánto te queda hasta fin de mes" />
+    <meta property="og:description" content="Gastos, cuotas y vencimientos en una app clara, pensada para el celular." />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="es_AR" />
+    <meta name="twitter:card" content="summary" />
+    <script>
+      // Aplica estilo y tema antes de pintar, para que no parpadee
+      try {
+        var p = JSON.parse(localStorage.getItem('bolsillo:prefs') || '{}')
+        document.documentElement.dataset.style = p.style || 'crema'
+        if (p.theme && p.theme !== 'system') document.documentElement.dataset.theme = p.theme
+      } catch (e) {}
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <noscript>Bolsillo necesita JavaScript activado para funcionar.</noscript>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

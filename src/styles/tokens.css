@@ -1,0 +1,208 @@
+/*
+  Dos propuestas de estilo (hito 1), cada una con modo claro y oscuro.
+  - "crema": la línea visual del brief. Fondo crema, violeta como acción, formas suaves.
+  - "contraste": misma paleta llevada a un registro más editorial: blanco hueso, tinta casi negra,
+    bordes marcados, esquinas más rectas y números más pesados.
+  El tema sigue la preferencia del sistema salvo que el usuario elija uno (data-theme).
+*/
+
+:root {
+  --font-display: 'Bricolage Grotesque Variable', 'Bricolage Grotesque', ui-sans-serif, sans-serif;
+  --font-body: 'Inter Variable', 'Inter', ui-sans-serif, system-ui, sans-serif;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-1: 140ms;
+  --dur-2: 260ms;
+  --dur-3: 520ms;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 72px;
+
+  --tap: 44px;
+  --content: 1180px;
+}
+
+/* ---------- Estilo A: crema (claro) ---------- */
+:root,
+[data-style='crema'] {
+  color-scheme: light;
+  --bg: #f5efe3;
+  --bg-sunken: #ece4d4;
+  --surface: #fffcf6;
+  --surface-2: #faf5ea;
+  --ink: #1d1923;
+  --ink-2: #4f4858;
+  --ink-3: #6b6474;
+  --line: #ddd3c1;
+  --line-strong: #c5b9a3;
+
+  --accent: #6236d9;
+  --accent-ink: #ffffff;
+  --accent-soft: #e9e1fb;
+  --accent-text: #5329c4;
+
+  --income: #1d6e47;
+  --income-soft: #dcefe3;
+  --expense: #1d1923;
+  --warn: #8a5300;
+  --warn-soft: #f9e7c5;
+  --danger: #b0301c;
+  --danger-soft: #f8dcd5;
+
+  --radius-1: 8px;
+  --radius-2: 14px;
+  --radius-3: 22px;
+  --border-w: 1px;
+  --display-weight: 680;
+  --shadow-1: 0 1px 2px rgb(60 40 20 / 0.06), 0 2px 8px rgb(60 40 20 / 0.05);
+  --shadow-2: 0 4px 10px rgb(50 30 10 / 0.08), 0 18px 40px -12px rgb(50 30 10 / 0.18);
+
+  --cat-1: #6236d9;
+  --cat-2: #d8702a;
+  --cat-3: #2f6f8f;
+  --cat-4: #b9932a;
+  --cat-5: #3f8f63;
+  --cat-6: #c2416b;
+  --cat-7: #8a5cf0;
+  --cat-8: #7a5a3c;
+  --cat-9: #4b63c9;
+  --cat-10: #8a8293;
+  --cat-in-1: #1d6e47;
+  --cat-in-2: #3f8f63;
+  --cat-in-3: #6aa67f;
+}
+
+/* ---------- Estilo B: contraste (claro) ---------- */
+[data-style='contraste'] {
+  --bg: #fbfaf7;
+  --bg-sunken: #f0eee8;
+  --surface: #ffffff;
+  --surface-2: #f6f4ef;
+  --ink: #121016;
+  --ink-2: #3c3742;
+  --ink-3: #5c5664;
+  --line: #121016;
+  --line-strong: #121016;
+
+  --accent: #5524d4;
+  --accent-soft: #ece5ff;
+  --accent-text: #4a1dbf;
+
+  --radius-1: 4px;
+  --radius-2: 6px;
+  --radius-3: 10px;
+  --border-w: 1.5px;
+  --display-weight: 780;
+  --shadow-1: none;
+  --shadow-2: 0 6px 14px rgb(18 16 22 / 0.12), 0 24px 48px -16px rgb(18 16 22 / 0.28);
+}
+
+/* ---------- Oscuro (ambos estilos) ---------- */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --bg: #14121a;
+    --bg-sunken: #0f0d14;
+    --surface: #1d1a25;
+    --surface-2: #24202e;
+    --ink: #f3eef9;
+    --ink-2: #cdc5d8;
+    --ink-3: #a59db2;
+    --line: #34303f;
+    --line-strong: #4a4458;
+
+    --accent: #a98bff;
+    --accent-ink: #160f2b;
+    --accent-soft: #2c2346;
+    --accent-text: #c3aeff;
+
+    --income: #6fd4a0;
+    --income-soft: #183527;
+    --expense: #f3eef9;
+    --warn: #f2bd5a;
+    --warn-soft: #3a2c12;
+    --danger: #ff8b78;
+    --danger-soft: #3d1c17;
+
+    --shadow-1: 0 1px 2px rgb(0 0 0 / 0.4);
+    --shadow-2: 0 6px 16px rgb(0 0 0 / 0.45), 0 24px 48px -16px rgb(0 0 0 / 0.6);
+
+    --cat-1: #a98bff;
+    --cat-2: #f29a5c;
+    --cat-3: #6bb6d6;
+    --cat-4: #e2c25a;
+    --cat-5: #6fd4a0;
+    --cat-6: #f07ea3;
+    --cat-7: #c7b2ff;
+    --cat-8: #c79c74;
+    --cat-9: #8ea2f2;
+    --cat-10: #a59db2;
+    --cat-in-1: #6fd4a0;
+    --cat-in-2: #9be3bd;
+    --cat-in-3: #c2efd6;
+  }
+  :root[data-style='contraste']:not([data-theme='light']) {
+    --bg: #0d0c10;
+    --surface: #16141b;
+    --surface-2: #1d1a23;
+    --line: #f3eef9;
+    --line-strong: #f3eef9;
+  }
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #14121a;
+  --bg-sunken: #0f0d14;
+  --surface: #1d1a25;
+  --surface-2: #24202e;
+  --ink: #f3eef9;
+  --ink-2: #cdc5d8;
+  --ink-3: #a59db2;
+  --line: #34303f;
+  --line-strong: #4a4458;
+
+  --accent: #a98bff;
+  --accent-ink: #160f2b;
+  --accent-soft: #2c2346;
+  --accent-text: #c3aeff;
+
+  --income: #6fd4a0;
+  --income-soft: #183527;
+  --expense: #f3eef9;
+  --warn: #f2bd5a;
+  --warn-soft: #3a2c12;
+  --danger: #ff8b78;
+  --danger-soft: #3d1c17;
+
+  --shadow-1: 0 1px 2px rgb(0 0 0 / 0.4);
+  --shadow-2: 0 6px 16px rgb(0 0 0 / 0.45), 0 24px 48px -16px rgb(0 0 0 / 0.6);
+
+  --cat-1: #a98bff;
+  --cat-2: #f29a5c;
+  --cat-3: #6bb6d6;
+  --cat-4: #e2c25a;
+  --cat-5: #6fd4a0;
+  --cat-6: #f07ea3;
+  --cat-7: #c7b2ff;
+  --cat-8: #c79c74;
+  --cat-9: #8ea2f2;
+  --cat-10: #a59db2;
+  --cat-in-1: #6fd4a0;
+  --cat-in-2: #9be3bd;
+  --cat-in-3: #c2efd6;
+}
+:root[data-style='contraste'][data-theme='dark'] {
+  --bg: #0d0c10;
+  --surface: #16141b;
+  --surface-2: #1d1a23;
+  --line: #f3eef9;
+  --line-strong: #f3eef9;
+}
