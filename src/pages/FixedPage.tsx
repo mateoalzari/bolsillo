@@ -5,6 +5,7 @@ import { ConfirmDialog, Sheet } from '../components/Sheet'
 import { categoriesFor, getCategory, METHODS, methodLabel } from '../lib/categories'
 import { monthName, monthOf } from '../lib/dates'
 import { entriesForMovement, installmentCount } from '../lib/ledger'
+import { currencySymbol } from '../lib/currency'
 import { parseAmount } from '../lib/money'
 import { upcomingDue } from '../lib/recurring'
 import type { Kind, PaymentMethod, RecurringRule } from '../lib/types'
@@ -137,7 +138,7 @@ function RuleList({ rules, onEdit, empty }: { rules: RecurringRule[]; onEdit: (r
 }
 
 function RuleForm({ rule, onDone }: { rule?: RecurringRule; onDone: () => void }) {
-  const { addRule, updateRule, deleteRule, todayDate } = useApp()
+  const { data, addRule, updateRule, deleteRule, todayDate } = useApp()
   const ids = useId()
   const [kind, setKind] = useState<Kind>(rule?.kind ?? 'gasto')
   const [amount, setAmount] = useState(rule ? String(rule.amount) : '')
@@ -189,7 +190,7 @@ function RuleForm({ rule, onDone }: { rule?: RecurringRule; onDone: () => void }
         <div className="field">
           <label htmlFor={`${ids}-a`}>Monto por mes</label>
           <div className="amount-input amount-input--small">
-            <span aria-hidden="true">$</span>
+            <span aria-hidden="true">{currencySymbol(data.currency)}</span>
             <input id={`${ids}-a`} inputMode="decimal" autoComplete="off" placeholder="0" value={amount} onChange={(e) => setAmount(e.target.value)} />
           </div>
         </div>

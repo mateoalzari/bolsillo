@@ -92,5 +92,5 @@ export function buildSampleData(todayDate: ISODate): AppData {
 
   // Los fijos del mes en curso se generan completos (aunque vengan después de hoy): así el balance muestra lo que de verdad queda.
   const generated = materializeRecurring(rules, movements, current)
-  return { version: 1, movements: [...movements, ...generated], recurring: rules, cards: [card], budget: 1_900_000 }
+  return { version: 1, movements: [...movements, ...generated], recurring: rules, cards: [card], currency: 'ARS', budget: 1_900_000 }
 }

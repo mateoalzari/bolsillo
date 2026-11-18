@@ -1,6 +1,10 @@
 import { useId, useState, type FormEvent } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { CURRENCIES, type CurrencyCode } from '../lib/currency'
+import { localStore } from '../lib/storage'
 import type { CreditCard } from '../lib/types'
 import { useApp, type ThemePref } from '../state/AppState'
+import { useAuth } from '../state/AuthState'
 import { Icon } from './Icon'
 import { ConfirmDialog } from './Sheet'
 
@@ -11,11 +15,21 @@ const THEMES: { id: ThemePref; label: string }[] = [
 ]
 
 export function SettingsPanel({ onDone }: { onDone: () => void }) {
-  const { prefs, setPrefs, resetToSample, clearAll } = useApp()
-  const [confirm, setConfirm] = useState<null | 'sample' | 'clear'>(null)
+  const { source, prefs, setPrefs, resetToSample, clearAll, replaceData } = useApp()
+  const [confirm, setConfirm] = useState<null | 'sample' | 'clear' | 'import'>(null)
+  const demoData = source === 'cloud' ? localStore.load() : null
+
+  const confirmTexts = {
+    clear: { title: '¿Borrar todos tus datos?', message: `Se borran todos los movimientos, fijos, tarjetas y el presupuesto ${source === 'cloud' ? 'de tu cuenta' : 'de este navegador'}. No se puede deshacer.`, label: 'Borrar todo' },
+    sample: { title: '¿Reemplazar por datos de ejemplo?', message: `Se reemplazan tus movimientos actuales${source === 'cloud' ? ' en la nube' : ''} por 7 meses de datos de ejemplo. No se puede deshacer.`, label: 'Reemplazar' },
+    import: { title: '¿Pasar los datos de la demo a tu cuenta?', message: 'Se reemplazan los datos de tu cuenta por los que cargaste en la demo de este navegador. No se puede deshacer.', label: 'Pasar a mi cuenta' },
+  }
+  const c = confirm ? confirmTexts[confirm] : null
 
   return (
     <div className="settings">
+      <AccountSection onDone={onDone} />
+      <CurrencyField />
       <CardsEditor />
 
       <fieldset className="field">
@@ -31,8 +45,13 @@ export function SettingsPanel({ onDone }: { onDone: () => void }) {
 
       <div className="field">
         <span className="field__label">Datos</span>
-        <p className="field__hint">Por ahora todo se guarda en este navegador. Las cuentas con datos en la nube llegan en la Fase 2.</p>
+        <p className="field__hint">{source === 'cloud' ? 'Tus datos se guardan en la nube y los ves desde cualquier dispositivo.' : 'En la demo, los datos quedan solo en este navegador.'}</p>
         <div className="settings__data">
+          {demoData && demoData.movements.length > 0 && (
+            <button type="button" className="btn btn--ghost" onClick={() => setConfirm('import')}>
+              Pasar los datos de la demo a mi cuenta
+            </button>
+          )}
           <button type="button" className="btn btn--ghost" onClick={() => setConfirm('sample')}>
             Cargar datos de ejemplo
           </button>
@@ -43,22 +62,93 @@ export function SettingsPanel({ onDone }: { onDone: () => void }) {
       </div>
 
       <ConfirmDialog
-        open={confirm !== null}
-        title={confirm === 'clear' ? '¿Borrar todos tus datos?' : '¿Reemplazar por datos de ejemplo?'}
-        message={
-          confirm === 'clear'
-            ? 'Se borran todos los movimientos, fijos, tarjetas y el presupuesto de este navegador. No se puede deshacer.'
-            : 'Se reemplazan tus movimientos actuales por 7 meses de datos de ejemplo. No se puede deshacer.'
-        }
-        confirmLabel={confirm === 'clear' ? 'Borrar todo' : 'Reemplazar'}
+        open={c !== null}
+        title={c?.title ?? ''}
+        message={c?.message ?? ''}
+        confirmLabel={c?.label ?? 'Confirmar'}
         onCancel={() => setConfirm(null)}
         onConfirm={() => {
           if (confirm === 'clear') clearAll()
+          else if (confirm === 'import' && demoData) replaceData(demoData)
           else resetToSample()
           setConfirm(null)
           onDone()
         }}
       />
+    </div>
+  )
+}
+
+function AccountSection({ onDone }: { onDone: () => void }) {
+  const { source } = useApp()
+  const { user, signOut, exitDemo } = useAuth()
+  const navigate = useNavigate()
+  if (source === 'preview') return null
+  return (
+    <div className="field account">
+      <span className="field__label">Cuenta</span>
+      {source === 'cloud' ? (
+        <div className="account__row">
+          <span className="account__email">{user?.email}</span>
+          <button
+            type="button"
+            className="btn btn--ghost btn--small"
+            onClick={() => {
+              onDone()
+              // Primero se sale de la app; si no, la ruta protegida redirige a "Ingresar"
+              navigate('/')
+              window.setTimeout(() => void signOut(), 0)
+            }}
+          >
+            Cerrar sesión
+          </button>
+        </div>
+      ) : (
+        <div className="account__row">
+          <span className="muted">Estás usando la demo, sin cuenta.</span>
+          <span className="account__actions">
+            <button
+              type="button"
+              className="btn btn--primary btn--small"
+              onClick={() => {
+                onDone()
+                navigate('/registrarse')
+              }}
+            >
+              Crear cuenta
+            </button>
+            <button
+              type="button"
+              className="btn btn--ghost btn--small"
+              onClick={() => {
+                onDone()
+                navigate('/')
+                window.setTimeout(exitDemo, 0)
+              }}
+            >
+              Salir de la demo
+            </button>
+          </span>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function CurrencyField() {
+  const { data, setCurrency } = useApp()
+  const id = useId()
+  return (
+    <div className="field">
+      <label htmlFor={id}>Moneda principal</label>
+      <select id={id} value={data.currency} onChange={(e) => setCurrency(e.target.value as CurrencyCode)}>
+        {CURRENCIES.map((c) => (
+          <option key={c.code} value={c.code}>
+            {c.label}
+          </option>
+        ))}
+      </select>
+      <p className="field__hint">Es la moneda en la que cargás todo. Cambiarla no convierte los montos que ya cargaste. Para ver los montos en otra moneda usá el selector de arriba.</p>
     </div>
   )
 }

@@ -2,7 +2,36 @@
 
 App web de finanzas personales pensada para Argentina: responde **cuánto te queda hasta fin de mes y cuánto ya tenés comprometido para el que viene**, con cuotas, gastos fijos, vencimientos y vista en dólares.
 
-Esta rama contiene la **Fase 1 (núcleo de la app)**, hecha desde cero. Todo funciona en el navegador con datos de ejemplo; las cuentas y los datos en la nube llegan en la Fase 2.
+Incluye la **Fase 1** (núcleo de la app) y la **Fase 2** (página de inicio, cuentas y datos en la nube).
+
+## Fase 2: producto completo
+
+| Función | Dónde |
+|---|---|
+| Página de inicio con un celular que muestra la app real (una compra en cuotas que actualiza lo comprometido), 4 funciones con ilustraciones animadas, "Cómo funciona" y llamado a la acción | `/` (`src/pages/Landing.tsx`) |
+| Ingreso y registro con email y contraseña, recuperación de contraseña, botón de Google y **"Entrar con la cuenta demo"** | `/ingresar`, `/registrarse`, `/recuperar`, `/nueva-clave` |
+| Datos de cada usuario en Supabase (Postgres) con Row Level Security; la demo sigue en el navegador | `src/lib/cloud.ts`, `supabase/migrations/0001_init.sql` |
+| Moneda principal por usuario (ARS, USD, EUR, BRL, CLP, UYU) y vista convertida con cotizaciones de dolarapi.com | **Ajustes** + selector de moneda |
+| Rutas protegidas: sin sesión ni demo, `/app` lleva a ingresar | `src/main.tsx` |
+| Pasar los datos de la demo a la cuenta nueva | **Ajustes** → Datos |
+| SEO de la portada: título, descripción, imagen para compartir (`public/og.png`), favicon | `index.html` |
+
+### Cómo se guardan los datos
+
+La app trabaja siempre sobre su estado en memoria (rápida y sin esperas). En modo cuenta, después de cada cambio calcula **qué cambió** contra lo último guardado (altas, cambios y bajas por id) y lo manda a Supabase en orden, agrupando cambios seguidos. Si falla la conexión, arriba aparece "Sin guardar · Reintentar" y no se pierde nada: el próximo intento manda todo lo pendiente. Si cerrás la pestaña con cambios sin guardar, el navegador avisa.
+
+### Supabase
+
+- Proyecto: `fwcyqwrlwrwwrhacakbd`. La migración está en `supabase/migrations/0001_init.sql` (ya aplicada).
+- Cada tabla tiene `user_id` y una política RLS que solo deja leer y escribir las filas propias. Los anónimos no tienen acceso.
+- Al registrarse, un trigger crea el perfil (moneda principal y presupuesto).
+- Auth → URL Configuration: Site URL `https://bolsillo-gamma.vercel.app`; redirecciones permitidas para producción, vistas previas de Vercel y `localhost:5173`.
+- `.env.production` tiene la URL y la **publishable key**, que son públicas por diseño. La secret key no está en el repo ni en el navegador.
+
+### Pendiente de configurar
+
+- **Ingreso con Google:** crear credenciales OAuth en Google Cloud y cargarlas en Supabase → Authentication → Providers → Google. El botón ya está; hasta entonces muestra un aviso.
+- **Mails propios:** Supabase manda los mails de confirmación con un límite bajo por hora. Para producción conviene configurar un SMTP propio (por ejemplo Resend) en Authentication → Emails.
 
 ## Qué incluye
 
@@ -23,7 +52,7 @@ Esta rama contiene la **Fase 1 (núcleo de la app)**, hecha desde cero. Todo fun
 
 ## Cómo correrla
 
-Requiere Node 20 o más nuevo.
+Requiere Node 20 o más nuevo. Copiá `.env.example` como `.env.local` con los datos de Supabase (sin eso, la app funciona solo en modo demo).
 
 ```bash
 npm install
@@ -59,9 +88,10 @@ Para un proyecto nuevo:
 ```
 src/
   lib/          lógica pura y testeada: fechas, montos, cuotas, fijos, estadísticas, lecturas, CSV, dólar
-  state/        estado de la app (React context) y cálculos memorizados del mes
+  state/        sesión, estado de la app (demo / nube / vista previa) y cálculos del mes
   components/   piezas de interfaz (lista, formulario, resumen, gráficos SVG propios)
-  pages/        Mes, Gráficos, Fijos y cuotas
+  pages/        Portada, ingreso/registro, Mes, Gráficos, Fijos y cuotas
+supabase/       migraciones SQL
   styles/       tokens de diseño (2 estilos × claro/oscuro) y estilos
 ```
 
@@ -69,8 +99,8 @@ Sin librerías de gráficos ni de UI: los gráficos son SVG propios (JS total �
 
 ## Calidad verificada
 
-- 28 tests de lógica (cuotas, tarjetas y cierre, fijos, balance, comparación, presupuesto, lecturas, CSV, datos de ejemplo).
-- Lighthouse en celular: Rendimiento 96, Accesibilidad 100, Buenas prácticas 100, SEO 100.
+- 40 tests: lógica (cuotas, tarjetas y cierre, fijos, balance, comparación, presupuesto, lecturas, CSV, datos de ejemplo), conversión entre filas de la base y la app, diferencias para sincronizar y monedas.
+- Lighthouse en celular: portada 96 de Rendimiento y app 98; Accesibilidad, Buenas prácticas y SEO 100.
 - Sin scroll horizontal a 390 px; probada en 390 px y 1366 px, claro y oscuro.
 - Formularios con labels, errores junto al campo y foco en el primer error; diálogos nativos (`<dialog>`) con foco y Escape; animaciones solo con `transform`/`opacity`/`filter` y respetando "reducir movimiento".
 - Estados de carga, vacío y error: lista vacía, búsqueda sin resultados, cotización cargando / no disponible.

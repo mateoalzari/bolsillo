@@ -1,3 +1,4 @@
+import { isCurrency } from './currency'
 import type { AppData } from './types'
 
 /**
@@ -21,7 +22,7 @@ export const localStore: DataStore = {
       const data = JSON.parse(raw) as AppData
       if (data?.version !== 1 || !Array.isArray(data.movements) || !Array.isArray(data.recurring)) return null
       // Datos guardados antes de que existieran las tarjetas
-      return { ...data, cards: Array.isArray(data.cards) ? data.cards : [] }
+      return { ...data, cards: Array.isArray(data.cards) ? data.cards : [], currency: isCurrency(data.currency) ? data.currency : 'ARS' }
     } catch {
       return null
     }

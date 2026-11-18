@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { getCategory } from '../lib/categories'
 import { dayOf, daysInMonth, monthLabel, monthShort } from '../lib/dates'
-import { formatARS, formatPercent } from '../lib/money'
+import { formatPercent } from '../lib/money'
 import { expensesByCategory, expensesByDay, lastMonthsSeries } from '../lib/stats'
 import { useApp, useFormat } from '../state/AppState'
 import { useMonthData } from '../state/useMonthData'
@@ -53,7 +53,7 @@ export function MonthsChart() {
       ) : (
         <svg className="chart" viewBox={`0 0 ${W} ${H}`} role="img" aria-labelledby="months-desc">
           <desc id="months-desc">
-            {series.map((p) => `${monthLabel(p.month)}: ingresos ${formatARS(p.income)}, gastos ${formatARS(p.expenses)}`).join('. ')}
+            {series.map((p) => `${monthLabel(p.month)}: ingresos ${fmt(p.income)}, gastos ${fmt(p.expenses)}`).join('. ')}
           </desc>
           {ticks.map((t) => (
             <g key={t}>
@@ -146,7 +146,7 @@ export function DaysChart() {
             El día que más gastaste fue el {peak + 1}: <span className="num">{fmt(days[peak])}</span>.
           </p>
           <svg className="chart" viewBox={`0 0 ${W} ${H}`} role="img" aria-labelledby="days-desc">
-            <desc id="days-desc">{`Gasto diario de ${monthLabel(month)}. Máximo el día ${peak + 1} con ${formatARS(days[peak])}.`}</desc>
+            <desc id="days-desc">{`Gasto diario de ${monthLabel(month)}. Máximo el día ${peak + 1} con ${fmt(days[peak])}.`}</desc>
             <line x1={pad.l} x2={W - pad.r} y1={pad.t + innerH} y2={pad.t + innerH} className="chart__grid" />
             {days.map((v, i) => {
               const h = (v / max) * innerH

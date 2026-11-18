@@ -1,3 +1,5 @@
+import type { CurrencyCode } from './currency'
+
 export type Kind = 'gasto' | 'ingreso'
 export type PaymentMethod = 'efectivo' | 'debito' | 'credito' | 'transferencia'
 
@@ -79,6 +81,8 @@ export interface AppData {
   movements: Movement[]
   recurring: RecurringRule[]
   cards: CreditCard[]
+  /** Moneda principal: en la que se cargan todos los montos. */
+  currency: CurrencyCode
   /** Presupuesto mensual de gastos, en pesos. 0 = sin presupuesto. */
   budget: number
 }

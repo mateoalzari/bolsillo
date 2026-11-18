@@ -3,7 +3,8 @@ import { firstPaymentDate } from '../lib/cards'
 import { categoriesFor, getCategory, METHODS } from '../lib/categories'
 import { dayMonthLabel, dayOf, monthOf } from '../lib/dates'
 import { MAX_INSTALLMENTS, splitInstallments } from '../lib/ledger'
-import { formatARS, parseAmount } from '../lib/money'
+import { currencySymbol, formatIn } from '../lib/currency'
+import { parseAmount } from '../lib/money'
 import type { Kind, Movement, PaymentMethod } from '../lib/types'
 import { useApp } from '../state/AppState'
 import { Icon } from './Icon'
@@ -104,7 +105,7 @@ export function MovementForm({ movement, onDone }: Props) {
       <div className="field field--amount">
         <label htmlFor={`${ids}-amount`}>Monto</label>
         <div className="amount-input">
-          <span aria-hidden="true">$</span>
+          <span aria-hidden="true">{currencySymbol(data.currency)}</span>
           <input
             ref={amountRef}
             id={`${ids}-amount`}
@@ -203,7 +204,7 @@ export function MovementForm({ movement, onDone }: Props) {
             ))}
           </select>
           <p className="field__hint" aria-live="polite">
-            {preview !== null && `${installments} cuotas de ${formatARS(preview)}. `}
+            {preview !== null && `${installments} cuotas de ${formatIn(preview, data.currency)}. `}
             {firstPayment
               ? `Entra en el resumen de ${card?.name}: ${installments > 1 ? 'la primera cuota se paga' : 'se paga'} el ${dayMonthLabel(firstPayment, todayDate)}.`
               : data.cards.length === 0

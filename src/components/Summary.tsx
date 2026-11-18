@@ -1,7 +1,8 @@
 import { useId, useState, type FormEvent } from 'react'
 import { getCategory } from '../lib/categories'
 import { addMonths, dateLabel, monthName } from '../lib/dates'
-import { formatARS, formatPercent, parseAmount } from '../lib/money'
+import { currencySymbol } from '../lib/currency'
+import { formatPercent, parseAmount } from '../lib/money'
 import { useApp, useFormat } from '../state/AppState'
 import { useMonthData } from '../state/useMonthData'
 import { Section } from './AppShell'
@@ -127,10 +128,10 @@ export function BudgetMeter() {
       {editing ? (
         <form className="budget__form" onSubmit={save} noValidate>
           <label htmlFor={id} className="visually-hidden">
-            Presupuesto mensual en pesos
+            Presupuesto mensual
           </label>
           <div className="amount-input amount-input--small">
-            <span aria-hidden="true">$</span>
+            <span aria-hidden="true">{currencySymbol(data.currency)}</span>
             <input id={id} inputMode="decimal" autoComplete="off" value={value} onChange={(e) => setValue(e.target.value)} placeholder="1.900.000" autoFocus aria-invalid={Boolean(error)} aria-describedby={error ? `${id}-err` : undefined} />
           </div>
           <button type="submit" className="btn btn--primary btn--small">
@@ -155,7 +156,7 @@ export function BudgetMeter() {
             aria-valuemin={0}
             aria-valuemax={budget.budget}
             aria-valuenow={Math.round(budget.spent)}
-            aria-valuetext={`${formatPercent(budget.ratio)} usado: ${formatARS(budget.spent)} de ${formatARS(budget.budget)}`}
+            aria-valuetext={`${formatPercent(budget.ratio)} usado: ${fmt(budget.spent)} de ${fmt(budget.budget)}`}
             aria-label="Presupuesto usado"
           >
             <span className="meter__fill" style={{ transform: `scaleX(${Math.min(budget.ratio, 1)})` }} />
