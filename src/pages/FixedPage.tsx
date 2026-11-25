@@ -1,6 +1,7 @@
 import { useId, useMemo, useState, type FormEvent } from 'react'
 import { RateNotice, Section } from '../components/AppShell'
 import { Icon } from '../components/Icon'
+import { usePageTitle } from '../hooks/usePageTitle'
 import { ConfirmDialog, Sheet } from '../components/Sheet'
 import { categoriesFor, getCategory, METHODS, methodLabel } from '../lib/categories'
 import { monthName, monthOf } from '../lib/dates'
@@ -12,6 +13,7 @@ import type { Kind, PaymentMethod, RecurringRule } from '../lib/types'
 import { useApp, useFormat } from '../state/AppState'
 
 export function FixedPage() {
+  usePageTitle('Fijos y cuotas')
   const { data, todayDate } = useApp()
   const fmt = useFormat()
   const [editing, setEditing] = useState<{ open: boolean; rule?: RecurringRule; key: number }>({ open: false, key: 0 })
