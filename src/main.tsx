@@ -15,6 +15,7 @@ const AppShell = lazy(() => import('./components/AppShell').then((m) => ({ defau
 const MonthPage = lazy(() => import('./pages/MonthPage').then((m) => ({ default: m.MonthPage })))
 const ChartsPage = lazy(() => import('./pages/ChartsPage').then((m) => ({ default: m.ChartsPage })))
 const FixedPage = lazy(() => import('./pages/FixedPage').then((m) => ({ default: m.FixedPage })))
+const ImportPage = lazy(() => import('./pages/ImportPage').then((m) => ({ default: m.ImportPage })))
 const LoginPage = lazy(() => import('./pages/AuthPages').then((m) => ({ default: m.LoginPage })))
 const SignupPage = lazy(() => import('./pages/AuthPages').then((m) => ({ default: m.SignupPage })))
 const RecoverPage = lazy(() => import('./pages/AuthPages').then((m) => ({ default: m.RecoverPage })))
@@ -69,6 +70,7 @@ createRoot(document.getElementById('root')!).render(
             <Route index element={<MonthPage />} />
             <Route path="graficos" element={<ChartsPage />} />
             <Route path="fijos" element={<FixedPage />} />
+            <Route path="importar" element={<ImportPage />} />
           </Route>
           {/* Rutas de la Fase 1 */}
           <Route path="graficos" element={<Navigate to="/app/graficos" replace />} />

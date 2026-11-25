@@ -1801,3 +1801,364 @@ a {
     background-position: 200% 0;
   }
 }
+
+/* ============ Importar resumen de tarjeta ============ */
+.section__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+.import {
+  max-width: 880px;
+  margin: 0 auto;
+  gap: var(--space-5);
+}
+
+.import__head {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.import__head .muted {
+  max-width: 68ch;
+}
+
+.import__title {
+  font: var(--display-weight) clamp(26px, 5vw, 34px) / 1.1 var(--font-display);
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+
+.dropzone {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-3);
+  padding: var(--space-7) var(--space-4);
+  border: 1.5px dashed var(--line-strong);
+  border-radius: var(--radius-2);
+  background: var(--surface-2);
+  text-align: center;
+  transition: border-color var(--dur-1) var(--ease-out), background-color var(--dur-1) var(--ease-out);
+}
+
+.dropzone--over {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.dropzone__icon {
+  color: var(--accent-text);
+}
+
+.dropzone__hint {
+  max-width: 36ch;
+  font-size: 14px;
+  color: var(--ink-3);
+}
+
+.dropzone .btn:has(+ input:focus-visible) {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.dropzone .loading {
+  padding: var(--space-4) 0;
+}
+
+.import__tips {
+  display: grid;
+  gap: var(--space-2);
+  padding-left: 1.1em;
+  font-size: 14px;
+  color: var(--ink-2);
+}
+
+.import__tips li::marker {
+  color: var(--accent);
+}
+
+.import__file {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.import__file span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.import__file svg {
+  flex: none;
+  color: var(--accent-text);
+}
+
+.import__settings {
+  margin-top: var(--space-2);
+}
+
+.import-list {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  margin: 0 calc(var(--space-5) * -1);
+  border-top: 1px solid color-mix(in oklab, var(--line) 75%, transparent);
+}
+
+.import-row {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-5);
+  transition: background-color var(--dur-1) var(--ease-out);
+}
+
+.import-row + .import-row {
+  border-top: 1px solid color-mix(in oklab, var(--line) 75%, transparent);
+}
+
+.import-row:not(.import-row--on) .import-row__desc,
+.import-row:not(.import-row--on) .import-row__amount {
+  color: var(--ink-3);
+}
+
+.import-row--off {
+  background: var(--surface-2);
+}
+
+.import-row__top {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: start;
+  gap: var(--space-3);
+}
+
+.check {
+  width: 22px;
+  height: 22px;
+  margin: 1px 0 0;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.check:disabled {
+  cursor: not-allowed;
+}
+
+.import-row__main {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  cursor: pointer;
+}
+
+.import-row__desc {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.import-row__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px var(--space-2);
+  font-size: 13px;
+  color: var(--ink-3);
+}
+
+.import-row__amount {
+  display: grid;
+  justify-items: end;
+  font: 650 16px/1.2 var(--font-display);
+  letter-spacing: -0.015em;
+  white-space: nowrap;
+}
+
+.import-row__total {
+  font: 500 12px/1.4 var(--font-body);
+  letter-spacing: 0;
+  color: var(--ink-3);
+}
+
+.import-row__dup,
+.import-row__note {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  margin-left: calc(22px + var(--space-3));
+  font-size: 13px;
+}
+
+.import-row__dup {
+  color: var(--warn);
+}
+
+.import-row__dup svg {
+  flex: none;
+  margin-top: 1px;
+}
+
+.import-row__note {
+  color: var(--ink-3);
+}
+
+.import-row__selects {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: var(--space-2);
+  margin-left: calc(22px + var(--space-3));
+}
+
+.import-row__selects .field {
+  position: relative;
+}
+
+.import-row__selects select {
+  min-height: 40px;
+  padding-left: calc(var(--space-3) + 14px);
+  font-size: 14px;
+}
+
+.import-row__selects .field:last-child:not(:first-child) select {
+  padding-left: var(--space-3);
+}
+
+.import-row__dot {
+  position: absolute;
+  left: var(--space-3);
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  margin-top: -4px;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.import__bar {
+  position: sticky;
+  bottom: calc(76px + env(safe-area-inset-bottom));
+  z-index: 10;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface);
+  border: var(--border-w) solid var(--line);
+  border-radius: var(--radius-3);
+  box-shadow: var(--shadow-2);
+}
+
+.import__bar-total {
+  display: grid;
+  font-size: 13px;
+}
+
+.import__bar-total strong {
+  font: var(--display-weight) 20px/1.2 var(--font-display);
+  letter-spacing: -0.02em;
+}
+
+.import__bar-actions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.import__done {
+  justify-items: start;
+  gap: var(--space-4);
+}
+
+.import__done p {
+  max-width: 60ch;
+}
+
+.import__done-icon {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--income-soft);
+  color: var(--income);
+}
+
+.import__done-actions {
+  flex-wrap: wrap;
+  padding-top: 0;
+}
+
+.import__undo {
+  font-size: 14px;
+  color: var(--ink-2);
+}
+
+.import__password .field {
+  max-width: 360px;
+}
+
+@media (min-width: 760px) {
+  .import-row {
+    grid-template-columns: minmax(0, 1fr) 360px;
+    align-items: center;
+    column-gap: var(--space-4);
+  }
+
+  .import-row__top {
+    grid-column: 1;
+  }
+
+  .import-row__selects {
+    grid-column: 2;
+    grid-row: 1;
+    margin-left: 0;
+  }
+
+  .import-row__dup,
+  .import-row__note {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (min-width: 1024px) {
+  .import__bar {
+    bottom: var(--space-4);
+  }
+}
+
+@media (max-width: 420px) {
+  .import__bar-actions {
+    width: 100%;
+  }
+
+  .import__bar-actions .btn {
+    flex: 1;
+  }
+}
+
+/* Un link con aspecto de botón (sin pisar el color de los botones primarios) */
+a.btn {
+  text-decoration: none;
+}
+
+a.btn--ghost {
+  color: var(--ink);
+}
+
+.section__head > .btn--small {
+  flex: none;
+  white-space: nowrap;
+}
+
+.section__actions .btn {
+  white-space: nowrap;
+}
+
+@media (max-width: 479px) {
+  .btn__extra {
+    display: none;
+  }
+}

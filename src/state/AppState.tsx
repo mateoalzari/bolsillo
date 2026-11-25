@@ -14,6 +14,8 @@ import type { AppData, CreditCard, MonthKey, Movement, RecurringRule } from '../
 type Action =
   | { type: 'replace'; data: AppData }
   | { type: 'addMovement'; movement: Movement }
+  | { type: 'addMovements'; movements: Movement[] }
+  | { type: 'removeMovements'; ids: string[] }
   | { type: 'updateMovement'; movement: Movement }
   | { type: 'deleteMovement'; id: string }
   | { type: 'addRule'; rule: RecurringRule }
@@ -37,6 +39,13 @@ function reducer(state: AppData, action: Action): AppData {
       return withRecurring(action.data)
     case 'addMovement':
       return { ...state, movements: [...state.movements, action.movement] }
+    case 'addMovements':
+      return { ...state, movements: [...state.movements, ...action.movements] }
+    case 'removeMovements': {
+      // Para deshacer una importación: saca esos movimientos sin marcar meses salteados
+      const ids = new Set(action.ids)
+      return { ...state, movements: state.movements.filter((m) => !ids.has(m.id)) }
+    }
     case 'updateMovement':
       return { ...state, movements: state.movements.map((m) => (m.id === action.movement.id ? action.movement : m)) }
     case 'deleteMovement': {
@@ -122,6 +131,9 @@ interface AppState {
   ratesCached: boolean
   rateStatus: RateStatus
   addMovement: (m: Omit<Movement, 'id'>) => void
+  /** Agrega varios de una vez (importación). Devuelve los ids, para poder deshacer. */
+  addMovements: (ms: Omit<Movement, 'id'>[]) => string[]
+  removeMovements: (ids: string[]) => void
   updateMovement: (m: Movement) => void
   deleteMovement: (id: string) => void
   addRule: (r: Omit<RecurringRule, 'id'>) => void
@@ -298,6 +310,12 @@ export function AppProvider({ source, userId, children }: ProviderProps) {
       ratesCached: ratesState.cached,
       rateStatus,
       addMovement: (m) => dispatch({ type: 'addMovement', movement: { ...m, id: newId() } }),
+      addMovements: (ms) => {
+        const movements = ms.map((m) => ({ ...m, id: newId() }))
+        dispatch({ type: 'addMovements', movements })
+        return movements.map((m) => m.id)
+      },
+      removeMovements: (ids) => dispatch({ type: 'removeMovements', ids }),
       updateMovement: (m) => dispatch({ type: 'updateMovement', movement: m }),
       deleteMovement: (id) => dispatch({ type: 'deleteMovement', id }),
       addRule: (r) => dispatch({ type: 'addRule', rule: { ...r, id: newId() } }),

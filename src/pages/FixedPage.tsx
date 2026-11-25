@@ -1,6 +1,7 @@
 import { useId, useMemo, useState, type FormEvent } from 'react'
 import { RateNotice, Section } from '../components/AppShell'
 import { Icon } from '../components/Icon'
+import { ImportLink } from '../components/ImportLink'
 import { usePageTitle } from '../hooks/usePageTitle'
 import { ConfirmDialog, Sheet } from '../components/Sheet'
 import { categoriesFor, getCategory, METHODS, methodLabel } from '../lib/categories'
@@ -68,9 +69,9 @@ export function FixedPage() {
         <RuleList rules={incomes} onEdit={open} empty="Cargá tu sueldo como ingreso fijo para que el balance del mes sea real." />
       </Section>
 
-      <Section title="Compras en cuotas">
+      <Section title="Compras en cuotas" action={<ImportLink />}>
         {activePlans.length === 0 ? (
-          <p className="muted">No tenés cuotas pendientes. Cuando cargues un gasto con crédito en cuotas, aparece acá.</p>
+          <p className="muted">No tenés cuotas pendientes. Cuando cargues un gasto con crédito en cuotas, o importes el resumen de la tarjeta, aparece acá.</p>
         ) : (
           <>
             <p className="muted">

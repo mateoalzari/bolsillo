@@ -8,6 +8,7 @@ import { useApp, useFormat } from '../state/AppState'
 import { useMonthData } from '../state/useMonthData'
 import { useEditor } from './AppShell'
 import { Icon } from './Icon'
+import { ImportLink } from './ImportLink'
 
 const normalize = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
 
@@ -62,10 +63,13 @@ export function MovementList() {
         <h2 id="mov-title" className="section__title">
           Movimientos <span className="count">{filtered.length}</span>
         </h2>
-        <button type="button" className="btn btn--small btn--ghost" onClick={exportCSV} disabled={!filtered.length}>
-          <Icon name="download" size={16} />
-          Exportar CSV
-        </button>
+        <div className="section__actions">
+          <ImportLink label="Importar" />
+          <button type="button" className="btn btn--small btn--ghost" onClick={exportCSV} disabled={!filtered.length} aria-label="Exportar CSV">
+            <Icon name="download" size={16} />
+            <span className="btn__extra">Exportar </span>CSV
+          </button>
+        </div>
       </div>
 
       <div className="filters">

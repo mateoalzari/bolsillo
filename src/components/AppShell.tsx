@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, type ReactNode } from 'react'
-import { Link, NavLink, Outlet } from 'react-router-dom'
+import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
 import { formatIn, viewLabel, viewOptions, type ViewCurrency } from '../lib/currency'
 import { addMonths, monthLabel } from '../lib/dates'
 import type { Movement } from '../lib/types'
@@ -27,6 +27,8 @@ export function AppShell() {
   const { loadStatus, retryLoad } = useApp()
   const [editor, setEditor] = useState<{ open: boolean; movement?: Movement; key: number }>({ open: false, key: 0 })
   const [settingsOpen, setSettingsOpen] = useState(false)
+  // La importación tiene su propia barra de confirmación y no depende del mes elegido
+  const importing = useLocation().pathname.startsWith('/app/importar')
 
   const api: EditorApi = {
     openNew: () => setEditor((e) => ({ open: true, movement: undefined, key: e.key + 1 })),
@@ -60,7 +62,7 @@ export function AppShell() {
             </button>
           </div>
         </div>
-        <MonthPicker />
+        {!importing && <MonthPicker />}
       </header>
 
       <DemoBanner />
@@ -85,7 +87,7 @@ export function AppShell() {
         )}
       </main>
 
-      {loadStatus === 'ready' && (
+      {loadStatus === 'ready' && !importing && (
         <button type="button" className="fab" onClick={api.openNew}>
           <Icon name="plus" size={22} />
           <span className="fab__label">Agregar movimiento</span>
