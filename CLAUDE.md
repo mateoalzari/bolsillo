@@ -21,11 +21,11 @@ React 19 + TypeScript estricto + Vite + React Router. Supabase (Postgres + Auth)
 
 ## Ramas y deploy
 
-- `fase-1-desde-cero`: **rama de producción** en Vercel → https://bolsillo-gamma.vercel.app. Cada push ahí publica en producción.
-- `fase-2`: Fase 2 completa, todavía **sin publicar**. Vista previa: https://bolsillo-git-fase-2-alzarimateo-7233.vercel.app
+- `fase-1-desde-cero`: **rama de producción** en Vercel → https://bolsillo-gamma.vercel.app. Cada push ahí publica en producción. Desde la publicación de la Fase 2 apunta al mismo commit que `fase-2`.
+- `fase-2`: rama de trabajo. Vista previa: https://bolsillo-git-fase-2-alzarimateo-7233.vercel.app (protegida por Vercel: hay que tener sesión iniciada en Vercel para verla).
 - `main`: la versión vieja de Mateo, anterior a todo esto. No tocarla.
 - Las ramas `fase-*` se crearon como ramas huérfanas: **no comparten historia con `main`**, así que no se pueden unir con un PR común a `main`.
-- Para publicar la Fase 2 en producción: llevar `fase-2` a `fase-1-desde-cero` (por ejemplo `git push origin fase-2:fase-1-desde-cero`, que es fast-forward) **solo después de que Mateo confirme que probó la cuenta real**. Alternativa: cambiar la Production Branch en Vercel a `fase-2`.
+- Para publicar en producción: llevar `fase-2` a `fase-1-desde-cero` con `git push origin fase-2:fase-1-desde-cero` (fast-forward), **siempre con confirmación de Mateo**. Después verificar https://bolsillo-gamma.vercel.app.
 - Vercel: proyecto `bolsillo` en el equipo `alzarimateo-7233`. No hay variables de entorno cargadas: las públicas de Supabase van en `.env.production` (ver abajo).
 
 ## Estructura
@@ -49,6 +49,7 @@ src/
     AuthState.tsx   sesión: loading | anon | demo | cloud; errores de Auth en español
     AppState.tsx    reducer + origen de datos: demo (localStorage) | cloud (Supabase) | preview (portada)
     useMonthData.ts cálculos memorizados del mes elegido
+  hooks/        usePageTitle.ts: título de pestaña de cada pantalla de la app ("Noviembre 2026 · Bolsillo", "Gráficos · Bolsillo", "Fijos y cuotas · Bolsillo"); la portada y las pantallas de ingreso ponen el suyo
   components/   AppShell (barra, navegación, botón agregar), formularios, resumen, lista, gráficos
   pages/        Landing, AuthPages (ingresar/registrarse/recuperar/nueva-clave), Month, Charts, Fixed
   styles/       tokens.css (paleta Crema, claro/oscuro), app.css, landing.css
@@ -80,22 +81,21 @@ Rutas: `/` portada · `/ingresar` · `/registrarse` · `/recuperar` · `/nueva-c
 
 ## Estado y próximos pasos
 
-Hecho: Fase 1 completa (en producción) + tarjetas con cierre + Fase 2 completa en `fase-2` (portada, cuentas, nube, moneda principal, SEO, imagen OG). Lighthouse móvil: portada 96 / app 98 de rendimiento; 100 en accesibilidad, buenas prácticas y SEO.
+Hecho: Fase 1 completa (en producción) + tarjetas con cierre + Fase 2 completa y **publicada en producción** (portada, cuentas, nube, moneda principal, SEO, imagen OG, título de pestaña por pantalla). Cuenta real verificada en producción: registro, confirmación por mail, movimientos, recarga y recuperación de contraseña. Lighthouse móvil: portada 96 / app 98 de rendimiento; 100 en accesibilidad, buenas prácticas y SEO.
 
-Pendiente, en orden:
-1. **Verificar la cuenta real** en la vista previa de `fase-2`: registro con email, confirmación, carga de movimientos, recarga, otro dispositivo, recuperación de contraseña. No se pudo probar contra Supabase desde el entorno anterior. Si algo falla, revisar consola y red (`read_network_requests`) antes de cambiar código.
-2. **Publicar Fase 2** en producción (ver "Ramas y deploy"), con confirmación de Mateo.
-3. **Google OAuth:** crear credenciales en Google Cloud (Mateo, con su cuenta) y cargarlas en Supabase → Authentication → Providers → Google. El botón ya existe y muestra un aviso mientras tanto.
-4. **SMTP propio** (por ejemplo Resend) en Supabase → Authentication → Emails, por el límite bajo de mails del servicio por defecto. Opcional: plantillas de mail en español.
-5. **Fase 3** del brief: ver abajo.
-6. Probar en Safari de iPhone y Edge reales (Mateo no tiene iPhone; pendiente sin fecha).
+Próximos pasos, en orden:
+1. **Google OAuth:** crear credenciales en Google Cloud (Mateo, con su cuenta) y cargarlas en Supabase → Authentication → Sign In / Providers → Google. El botón ya existe y muestra un aviso mientras tanto.
+2. **SMTP propio con Resend** en Supabase → Authentication → Emails, por el límite bajo de mails del servicio por defecto. Opcional: plantillas de mail en español.
+3. **Fase 3** del brief: ver abajo.
+
+Sin fecha: probar en Safari de iPhone y Edge reales (Mateo no tiene iPhone).
 
 ## Brief original (resumen)
 
 Anuncio armado por Mateo como si fuera de Workana. Stack pedido: React + Vite + TypeScript, Supabase, Vercel.
 
 - **Fase 1 (hecha):** movimientos, balance y comparación con el mes anterior a la misma altura, presupuesto con avisos 80/100 %, cuotas 1–24 y comprometido del mes siguiente, fijos automáticos y vencimientos a 30 días, gráficos (6 meses, categoría, día), lecturas automáticas, dólar oficial/blue, búsqueda y filtros, CSV, datos de ejemplo, mobile-first, claro/oscuro, 2 propuestas de estilo.
-- **Fase 2 (hecha, sin publicar):** portada con mockup animado hecho con los componentes reales, 4 funciones con ilustraciones animadas, cómo funciona en 3 pasos, CTA; registro/ingreso con email y Google, recuperación, cuenta demo; datos en Supabase con RLS; moneda principal por usuario.
+- **Fase 2 (hecha y publicada):** portada con mockup animado hecho con los componentes reales, 4 funciones con ilustraciones animadas, cómo funciona en 3 pasos, CTA; registro/ingreso con email y Google, recuperación, cuenta demo; datos en Supabase con RLS; moneda principal por usuario.
 - **Fase 3 (pendiente):** IA para cargar gastos desde foto de ticket y en lenguaje natural, importación de resumen de tarjeta (PDF/CSV), Google Calendar para vencimientos. Siempre vía funciones de servidor de Vercel (`/api`), **nunca** claves de IA en el navegador; límite de uso por usuario. **Gmail** queda como opcional: leer mails exige verificación de Google con auditoría de seguridad paga y lenta; priorizar la importación de PDF/CSV.
 - Requisitos transversales: Lighthouse móvil ≥ 90, tests de la lógica, README, accesibilidad WCAG AA.
 
