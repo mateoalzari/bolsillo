@@ -35,7 +35,7 @@ export async function readStatementFile(
   loadPdf: () => Promise<PdfLib>,
   password?: string,
 ): Promise<ParsedStatement> {
-  if (bytes.length > MAX_FILE_BYTES) throw new StatementError('unsupported', 'El archivo pesa más de 10 MB. Un resumen suele pesar menos de 1 MB: ¿es el archivo correcto?')
+  if (bytes.length > MAX_FILE_BYTES) throw new StatementError('unsupported', 'El archivo pesa más de 10\u00a0MB. Un resumen suele pesar menos de 1\u00a0MB: ¿es el archivo correcto?')
   if (!bytes.length) throw new StatementError('empty', 'El archivo está vacío.')
   const kind = fileKind(name, bytes)
   if (kind === 'excel') throw new StatementError('unsupported', 'Es un archivo de Excel. Abrilo y guardalo como CSV (Archivo → Guardar como → CSV), o descargá el resumen en PDF.')

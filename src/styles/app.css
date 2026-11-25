@@ -1928,6 +1928,11 @@ a {
   background: var(--surface-2);
 }
 
+.import-list :is(input, select) {
+  /* Que la barra fija de abajo no tape lo que tiene el foco al recorrer con Tab */
+  scroll-margin-bottom: 180px;
+}
+
 .import-row__top {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;

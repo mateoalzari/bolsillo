@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { entriesForMovement } from './ledger'
 import { findDuplicate, guessCategory, paymentStartFor, rowToMovement, suggestCard } from './importPlan'
 import { readPdfLines, type PdfLib } from './pdfText'
+import { decodeText, fileKind, readStatementFile } from './statementFile'
 import { extractInstallment, parseCSV, parseStatementAmount, parseStatementCSV, parseStatementDate, parseStatementText, StatementError, tidyDescription } from './statement'
 import { asText, buildPdf, MASTERCARD_CSV, MASTERCARD_PDF_LINES, VISA_CSV, VISA_PDF_LINES } from './fixtures/statements'
 import type { CreditCard, Movement } from './types'
@@ -268,5 +269,38 @@ describe('del resumen a Bolsillo', () => {
     expect(suggestCard([visa, master], undefined)).toBe('')
     expect(suggestCard([visa], 'amex')).toBe('visa')
     expect(suggestCard([], 'visa')).toBe('')
+  })
+})
+
+describe('archivo elegido', () => {
+  const noPdf = () => Promise.reject(new Error('no debería cargar pdf.js'))
+
+  it('lee un CSV guardado por Excel en Windows-1252 (acentos)', async () => {
+    const latin1 = Uint8Array.from('Fecha;Descripción;Importe\n05/11/2026;CAFÉ MARTÍNEZ;1.500,00\n', (c) => c.charCodeAt(0))
+    expect(decodeText(latin1)).toContain('Descripción')
+    const p = await readStatementFile('resumen.csv', latin1, TODAY, noPdf)
+    expect(p.rows[0]).toMatchObject({ description: 'Café Martínez', amount: 1500, date: '2026-11-05' })
+  })
+
+  it('reconoce el tipo por el contenido y no solo por la extensión', () => {
+    expect(fileKind('resumen.bin', buildPdf(VISA_PDF_LINES))).toBe('pdf')
+    expect(fileKind('resumen.xlsx', new Uint8Array([0x50, 0x4b, 3, 4]))).toBe('excel')
+    expect(fileKind('foto.jpg', new Uint8Array([0xff, 0xd8]))).toBe('other')
+  })
+
+  it('explica qué hacer con Excel, archivos vacíos o enormes', async () => {
+    await expect(readStatementFile('r.xlsx', new Uint8Array([0x50, 0x4b, 3, 4]), TODAY, noPdf)).rejects.toThrow(/CSV/)
+    await expect(readStatementFile('r.csv', new Uint8Array(), TODAY, noPdf)).rejects.toMatchObject({ kind: 'empty' })
+    await expect(readStatementFile('r.pdf', new Uint8Array(11 * 1024 * 1024), TODAY, noPdf)).rejects.toThrow(/10\u00a0MB/)
+  })
+
+  it('avisa si no se pudo cargar el lector de PDF', async () => {
+    await expect(readStatementFile('r.pdf', buildPdf(VISA_PDF_LINES), TODAY, noPdf)).rejects.toMatchObject({ kind: 'unreadable' })
+  })
+
+  it('lee un PDF completo de punta a punta', async () => {
+    const p = await readStatementFile('r.pdf', buildPdf(VISA_PDF_LINES), TODAY, pdfjs)
+    expect(p.rows).toHaveLength(11)
+    expect(p.format).toBe('pdf')
   })
 })

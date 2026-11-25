@@ -273,7 +273,7 @@ function PasswordForm({ name, error, onSubmit, onCancel }: { name: string; error
           id={id}
           type="password"
           autoComplete="off"
-          autoFocus
+          autoFocus={window.matchMedia('(pointer: fine)').matches}
           value={pw}
           onChange={(e) => setPw(e.target.value)}
           aria-invalid={Boolean(error)}

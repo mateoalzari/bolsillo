@@ -2,7 +2,20 @@
 
 App web de finanzas personales pensada para Argentina: responde **cuánto te queda hasta fin de mes y cuánto ya tenés comprometido para el que viene**, con cuotas, gastos fijos, vencimientos y vista en dólares.
 
-Incluye la **Fase 1** (núcleo de la app) y la **Fase 2** (página de inicio, cuentas y datos en la nube).
+Incluye la **Fase 1** (núcleo de la app), la **Fase 2** (página de inicio, cuentas y datos en la nube) y, en la rama `fase-3`, la primera parte de la **Fase 3**: importar el resumen de la tarjeta.
+
+## Fase 3 (parte 1): importar el resumen de la tarjeta
+
+En **Mes → Importar** o **Fijos y cuotas → Importar resumen** (`/app/importar`):
+
+1. Elegís el resumen en **PDF** (el original del banco, con texto) o en **CSV** exportado del home banking. Si el PDF tiene contraseña, la pide.
+2. Bolsillo encuentra cada consumo: fecha, descripción, monto, cuotas (`C.03/06`, `Cuota 3 de 6`, `CTA 3/6`), consumos en dólares, impuestos y devoluciones. Los pagos de la tarjeta y los saldos no se importan. También lee el cierre, el vencimiento y la marca (Visa, Mastercard, Amex).
+3. En la pantalla de revisión elegís qué filas importar, con qué **tarjeta** y en qué **categoría** (sugerida por el comercio o por cómo categorizaste antes uno parecido). Lo que ya está cargado aparece marcado y sin elegir, para no duplicarlo.
+4. Al importar, cada compra en cuotas se guarda **una sola vez** (como si la cargaras a mano), ubicada para que la cuota del resumen caiga en su vencimiento. Se puede deshacer.
+
+El archivo se lee **en el navegador**: no se sube a ningún servidor y no hay IA de por medio. El lector de PDF (pdf.js) se descarga solo cuando elegís un PDF.
+
+Código: `src/lib/statement.ts` (lector), `src/lib/pdfText.ts` (texto del PDF), `src/lib/statementFile.ts` (tipo de archivo y codificación), `src/lib/importPlan.ts` (categorías, duplicados y armado de la compra), `src/pages/ImportPage.tsx` (pantalla). Los tests usan resúmenes **inventados** que imitan los de Visa y Mastercard (`src/lib/fixtures/statements.ts`), incluido un PDF real que se genera en el test.
 
 ## Fase 2: producto completo
 
@@ -90,7 +103,7 @@ src/
   lib/          lógica pura y testeada: fechas, montos, cuotas, fijos, estadísticas, lecturas, CSV, dólar
   state/        sesión, estado de la app (demo / nube / vista previa) y cálculos del mes
   components/   piezas de interfaz (lista, formulario, resumen, gráficos SVG propios)
-  pages/        Portada, ingreso/registro, Mes, Gráficos, Fijos y cuotas
+  pages/        Portada, ingreso/registro, Mes, Gráficos, Fijos y cuotas, Importar resumen
 supabase/       migraciones SQL
   styles/       tokens de diseño (2 estilos × claro/oscuro) y estilos
 ```
@@ -99,7 +112,7 @@ Sin librerías de gráficos ni de UI: los gráficos son SVG propios (JS total �
 
 ## Calidad verificada
 
-- 40 tests: lógica (cuotas, tarjetas y cierre, fijos, balance, comparación, presupuesto, lecturas, CSV, datos de ejemplo), conversión entre filas de la base y la app, diferencias para sincronizar y monedas.
+- 73 tests: lógica (cuotas, tarjetas y cierre, fijos, balance, comparación, presupuesto, lecturas, CSV, datos de ejemplo), conversión entre filas de la base y la app, diferencias para sincronizar, monedas y el lector de resúmenes de tarjeta (CSV y PDF).
 - Lighthouse en celular: portada 96 de Rendimiento y app 98; Accesibilidad, Buenas prácticas y SEO 100.
 - Sin scroll horizontal a 390 px; probada en 390 px y 1366 px, claro y oscuro.
 - Formularios con labels, errores junto al campo y foco en el primer error; diálogos nativos (`<dialog>`) con foco y Escape; animaciones solo con `transform`/`opacity`/`filter` y respetando "reducir movimiento".
